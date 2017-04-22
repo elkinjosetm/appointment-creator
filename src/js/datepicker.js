@@ -6,6 +6,7 @@ const DatePicker = ( function () {
 		input             : 'datepicker__input',
 		calendarContainer : 'datepicker__calendar-container',
 		calendarTable     : 'datepicker__calendar-table',
+		calendarDay       : 'datepicker__calendar-table__day',
 	};
 
 	const init = config => {
@@ -18,8 +19,11 @@ const DatePicker = ( function () {
 		datePickers.forEach( datePicker => {
 			// Build picker layout
 			renderPickerLayout( datePicker );
-			addEventHandler( datePicker );
+			addInputEventHandler( datePicker );
 		} );
+
+		// Handle on Blur event
+		document.addEventListener( 'click', blurHandler );
 	}
 
 	/**
@@ -32,7 +36,9 @@ const DatePicker = ( function () {
 		const calendarContainer = createElement( { nodeName : 'div' } );
 
 		// Render calendar table
-		calendarContainer.appendChild( buildCalendarTable() );
+		calendarContainer.appendChild( buildCalendarTable( {
+			onSelect : onSelectDayHandler.bind( null, datePicker ),
+		} ) );
 
 		// Add calendar container below the input
 		calendarContainer.className = classNames.calendarContainer;
@@ -45,14 +51,14 @@ const DatePicker = ( function () {
 	 * @param  {Date}   date
 	 * @return {Node}
 	 */
-	const buildCalendarTable = ( date = currentDate ) => {
+	const buildCalendarTable = ( { date = currentDate, onSelect } ) => {
 		const calendar = createElement( { nodeName : 'table' } );
 
 		calendar.classList.add( classNames.calendarTable );
 
 		// Build calendar table
 		calendar.appendChild( buildTableHead( date ) );
-		calendar.appendChild( buildTableBody( date ) );
+		calendar.appendChild( buildTableBody( { date: date, onSelect : onSelect } ) );
 
 		return calendar;
 	}
@@ -73,9 +79,9 @@ const DatePicker = ( function () {
 		// Build calendarTable column names
 		// with the weekDay name
 		weekDays.forEach( day => {
-			const td = createElement( { nodeName : 'td' } );
-			td.innerText = day;
-			tr.appendChild( td );
+			const th = createElement( { nodeName : 'th' } );
+			th.innerText = day;
+			tr.appendChild( th );
 		} );
 
 		thead.appendChild( tr );
@@ -89,11 +95,11 @@ const DatePicker = ( function () {
 	 * @param  {Date} date
 	 * @return {Node}
 	 */
-	const buildTableBody = date => {
+	const buildTableBody = ( { date, onSelect } ) => {
 		const tbody     = createElement( { nodeName : 'tbody' } );
 		const monthData = buildMonthData( date );
 
-		monthData.forEach( week => tbody.appendChild( buildBodyRow( week ) ) );
+		monthData.forEach( week => tbody.appendChild( buildBodyRow( { data : week, onSelect : onSelect } ) ) );
 
 		return tbody;
 	}
@@ -104,7 +110,7 @@ const DatePicker = ( function () {
 	 * @param  {Object} data
 	 * @return {Node}
 	 */
-	const buildBodyRow = data => {
+	const buildBodyRow = ( { data, onSelect } ) => {
 		const row = createElement( { nodeName : 'tr' } );
 
 		data.forEach( dayData => {
@@ -112,9 +118,13 @@ const DatePicker = ( function () {
 			const button = createElement( { nodeName : 'a' } );
 
 			if ( dayData.today )
-				cell.classList.add( 'selected' );
+				cell.classList.add( 'today' );
 
 			button.innerText = dayData.day;
+			button.classList.add( classNames.calendarDay );
+
+			// Handle on click day
+			button.addEventListener( 'click', onSelect.bind( null, dayData ) );
 
 			cell.appendChild( button );
 
@@ -207,12 +217,33 @@ const DatePicker = ( function () {
 	}
 
 	/**
-	 * Function to attach every handled datePicker related event
+	 * Function to handle on select day
+	 *
+	 * @param  {Node}   datePicker
+	 * @param  {Object} dayData
+	 * @param  {Event}  event
+	 */
+	const onSelectDayHandler = ( datePicker, dayData, event ) => {
+		const input = getElementsByClass( { className : `.${ classNames.input }`, sourceElement : datePicker } )[ 0 ];
+
+		const year  = dayData.date.getFullYear();
+		const month = dayData.date.getMonth();
+		const day   = dayData.date.getDate();
+
+		// Update input value with selected date
+		input.value = `${ month }/${ day }/${ year }`;
+
+		event.preventDefault();
+		closePickers();
+	}
+
+	/**
+	 * Function to attach onClick event to datePicker input
 	 * in the DOM
 	 *
 	 * @param  {Node}   datePicker
 	 */
-	const addEventHandler = datePicker => {
+	const addInputEventHandler = datePicker => {
 		const input = getElementsByClass( { className : `.${ classNames.input }`, sourceElement : datePicker } )[ 0 ];
 
 		input.addEventListener( 'click', event => {
@@ -221,9 +252,6 @@ const DatePicker = ( function () {
 			if ( ! hasClass( { element: datePicker, className : classNames.active } ) )
 				datePicker.classList.add( classNames.active );
 		} );
-
-		// Handle on Blur event
-		document.addEventListener( 'click', blurHandler );
 	}
 
 	/**
@@ -245,9 +273,13 @@ const DatePicker = ( function () {
 	 * @param  {Event}  event
 	 */
 	const blurHandler = event => {
-		const target     = event.target;
-		const isInput    = hasClass( { element: target, className : classNames.input } );
-		const isCalendar = hasClass( { element: target, className : classNames.calendarContainer } );
+		const target   = event.target;
+		const isInput  = hasClass( { element : target, className : classNames.input } );
+		let isCalendar = hasClass( { element : target, className : classNames.calendarContainer } );
+
+		// Also check if the event coming from an element inside the calendar
+		isCalendar = ! isCalendar ? hasClass( { element : target, className : classNames.calendarTable } ) : isCalendar;
+		isCalendar = ! isCalendar ? hasClass( { element : target, className : classNames.calendarDay } ) : isCalendar;
 
 		// Prevent close pickers if user clicked one of the pickers
 		if ( isInput || isCalendar )

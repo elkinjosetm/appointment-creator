@@ -29,14 +29,20 @@
 	width        : 100%;
 }
 
-.datepicker__calendar-table td
+.datepicker__calendar-table th,
+.datepicker__calendar-table td a
 {
-	cursor     : pointer;
-	text-align : center;
 	padding    : 5px;
+	text-align : center;
 }
 
-.datepicker__calendar-table td.selected
+.datepicker__calendar-table td a
+{
+	display : block;
+	cursor  : pointer;
+}
+
+.datepicker__calendar-table td.today a
 {
 	background-color: rgba( 0,0,0,.075 );
 }
