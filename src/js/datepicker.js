@@ -1,9 +1,11 @@
 const DatePicker = ( function () {
-	let classNames = {
-		wrapper  : 'datepicker',
-		active   : 'datepicker__active',
-		input    : 'datepicker__input',
-		calendar : 'datepicker__calendar',
+	const currentDate = new Date();
+	let classNames   = {
+		wrapper           : 'datepicker',
+		active            : 'datepicker__active',
+		input             : 'datepicker__input',
+		calendarContainer : 'datepicker__calendar-container',
+		calendarTable     : 'datepicker__calendar-table',
 	};
 
 	const init = config => {
@@ -11,11 +13,11 @@ const DatePicker = ( function () {
 		// given by user
 		classNames = config && config.classNames ? config.classNames : classNames;
 
-		const datePickers = getElementsByClass( `.${ classNames.wrapper }` );
+		const datePickers = getElementsByClass( { className : `.${ classNames.wrapper }` } );
 
 		datePickers.forEach( datePicker => {
 			// Build picker layout
-			buildPickerLayout( datePicker );
+			renderPickerLayout( datePicker );
 			addEventHandler( datePicker );
 		} );
 	}
@@ -26,12 +28,87 @@ const DatePicker = ( function () {
 	 *
 	 * @param  {Node}   datePicker
 	 */
-	const buildPickerLayout = datePicker => {
-		const calendar = document.createElement( 'div' );
+	const renderPickerLayout = datePicker => {
+		const calendarContainer = createElement( { nodeName : 'div' } );
+
+		// Render calendar table
+		calendarContainer.appendChild( buildCalendarTable() );
 
 		// Add calendar container below the input
-		calendar.className = classNames.calendar;
-		datePicker.appendChild( calendar );
+		calendarContainer.className = classNames.calendarContainer;
+		datePicker.appendChild( calendarContainer );
+	}
+
+	/**
+	 * Function to build the calendar table
+	 *
+	 * @param  {Date}   date
+	 * @return {Node}
+	 */
+	const buildCalendarTable = ( date = currentDate ) => {
+		const calendar = createElement( { nodeName : 'table' } );
+
+		calendar.classList.add( classNames.calendarTable );
+
+		// Build calendar table
+		calendar.appendChild( buildTableHead( date ) );
+
+		return calendar;
+	}
+
+	/**
+	 * Function to build the calendar table head with WeekDays
+	 *
+	 * @param  {Date}   date
+	 * @return {Node}
+	 */
+	const buildTableHead = date => {
+		const thead = createElement( { nodeName : 'thead' } );
+		const tr    = createElement( { nodeName : 'tr' } );
+
+		// Get weekDays names
+		const weekDays = getWeekDays( { date : date } );
+
+		// Build calendarTable column names
+		// with the weekDay name
+		weekDays.forEach( day => {
+			const td = createElement( { nodeName : 'td' } );
+			td.innerText = day;
+			tr.appendChild( td );
+		} );
+
+		thead.appendChild( tr );
+
+		return thead;
+	}
+
+	/**
+	 * Function to get the WeekDayNames array from a given date
+	 *
+	 * @param  {Date}   options.date
+	 * @param  {String} options.format
+	 * @param  {String} options.locale
+	 * @return {String[]}
+	 */
+	const getWeekDays = ( { date, format = "narrow", locale = "en-US" } ) => {
+		return Array.from( { length: 7 } ).map( ( value, index ) => {
+			const newDate = new Date( date.getDate() - date.getDay() );
+			newDate.setDate( index );
+
+			// getDayName into localeString
+			return newDate.toLocaleString( locale, { weekday: format } );
+		} );
+	};
+
+	/**
+	 * Function the create a simple DOM element
+	 *
+	 * @param  {String} nodeName
+	 * @param  {Node}   targetElement [Element in which the node will be created (Optional)]
+	 * @return {Node}
+	 */
+	const createElement = ( { nodeName, targetElement = document } ) => {
+		return targetElement.createElement( nodeName );
 	}
 
 	/**
@@ -41,7 +118,7 @@ const DatePicker = ( function () {
 	 * @param  {Node}    sourceElement
 	 * @return {Node[]}
 	 */
-	const getElementsByClass = ( className, sourceElement = document ) => {
+	const getElementsByClass = ( { className, sourceElement = document } ) => {
 		return sourceElement.querySelectorAll( className );
 	}
 
@@ -52,7 +129,7 @@ const DatePicker = ( function () {
 	 * @param  {Node}   datePicker
 	 */
 	const addEventHandler = datePicker => {
-		const input = getElementsByClass( `.${ classNames.input }`, datePicker )[ 0 ];
+		const input = getElementsByClass( { className : `.${ classNames.input }`, sourceElement : datePicker } )[ 0 ];
 
 		input.addEventListener( 'click', event => {
 			closePickers();
@@ -69,7 +146,7 @@ const DatePicker = ( function () {
 	 * Function to close every active datePickers in DOM
 	 */
 	const closePickers = () => {
-		const activePickers = getElementsByClass( `.${ classNames.wrapper }.${ classNames.active }` );
+		const activePickers = getElementsByClass( { className : `.${ classNames.wrapper }.${ classNames.active }` } );
 
 		activePickers.forEach( datePicker => {
 			datePicker.classList.remove( classNames.active );
@@ -85,7 +162,7 @@ const DatePicker = ( function () {
 	 */
 	const blurHandler = event => {
 		const isInput    = event.target.classList.contains( classNames.input );
-		const isCalendar = event.target.classList.contains( classNames.calendar );
+		const isCalendar = event.target.classList.contains( classNames.calendarContainer );
 
 		// Prevent close pickers if user clicked one of the pickers
 		if ( isInput || isCalendar )
