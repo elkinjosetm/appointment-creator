@@ -31,6 +31,12 @@
 
 .datepicker__calendar-table td
 {
-	text-align: center;
-	padding : 5px;
+	cursor     : pointer;
+	text-align : center;
+	padding    : 5px;
+}
+
+.datepicker__calendar-table td.selected
+{
+	background-color: rgba( 0,0,0,.075 );
 }

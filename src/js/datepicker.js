@@ -52,6 +52,7 @@ const DatePicker = ( function () {
 
 		// Build calendar table
 		calendar.appendChild( buildTableHead( date ) );
+		calendar.appendChild( buildTableBody( date ) );
 
 		return calendar;
 	}
@@ -83,6 +84,47 @@ const DatePicker = ( function () {
 	}
 
 	/**
+	 * Function to build the table body for a given date
+	 *
+	 * @param  {Date} date
+	 * @return {Node}
+	 */
+	const buildTableBody = date => {
+		const tbody     = createElement( { nodeName : 'tbody' } );
+		const monthData = buildMonthData( date );
+
+		monthData.forEach( week => tbody.appendChild( buildBodyRow( week ) ) );
+
+		return tbody;
+	}
+
+	/**
+	 * Function to build a body row
+	 *
+	 * @param  {Object} data
+	 * @return {Node}
+	 */
+	const buildBodyRow = data => {
+		const row = createElement( { nodeName : 'tr' } );
+
+		data.forEach( dayData => {
+			const cell   = createElement( { nodeName : 'td' } );
+			const button = createElement( { nodeName : 'a' } );
+
+			if ( dayData.today )
+				cell.classList.add( 'selected' );
+
+			button.innerText = dayData.day;
+
+			cell.appendChild( button );
+
+			row.appendChild( cell );
+		} );
+
+		return row;
+	}
+
+	/**
 	 * Function to get the WeekDayNames array from a given date
 	 *
 	 * @param  {Date}   options.date
@@ -98,7 +140,49 @@ const DatePicker = ( function () {
 			// getDayName into localeString
 			return newDate.toLocaleString( locale, { weekday: format } );
 		} );
-	};
+	}
+
+	/**
+	 * Function to uild the currentMonthData
+	 *
+	 * @param  {Date}        date
+	 * @return {Object[]}
+	 */
+	const buildMonthData = date => {
+		const firstDayOfMonthDate     = new Date( date.getFullYear(), date.getMonth(), 1 );
+		const firstDayOfMonthPosition = firstDayOfMonthDate.getDay();
+
+		/**
+		 * Determine the firstDayOfTheWeek given the first
+		 * day of the current month position in the table
+		 * this value could be a day from previous month
+		 */
+		const firstDayOfWeekDate = new Date( firstDayOfMonthDate.setDate( firstDayOfMonthDate.getDate() - firstDayOfMonthPosition ) );
+
+		/**
+		 * Since every month, could have, up to 6 weeks,
+		 * we loop an array of 6 items, and inside it
+		 * we loop another array of 7 items, because every
+		 * week have 7 days
+		 */
+		return Array.from( { length: 6 } ).map( () => {
+			return Array.from( { length: 7 } ).map( () => {
+				const currentDayInWeekDate = new Date( firstDayOfWeekDate );
+				const currentDayInWeekDay  = firstDayOfWeekDate.getDate();
+
+				const isToday = firstDayOfWeekDate.toDateString() === currentDate.toDateString();
+
+				// Increase day date
+				firstDayOfWeekDate.setDate( firstDayOfWeekDate.getDate() + 1 );
+
+				 return {
+					date  : currentDayInWeekDate,
+					day   : currentDayInWeekDay,
+					today : isToday,
+				};
+			} );
+		} );
+	}
 
 	/**
 	 * Function the create a simple DOM element
@@ -134,7 +218,7 @@ const DatePicker = ( function () {
 		input.addEventListener( 'click', event => {
 			closePickers();
 
-			if ( ! datePicker.classList.contains( classNames.active ) )
+			if ( ! hasClass( { element: datePicker, className : classNames.active } ) )
 				datePicker.classList.add( classNames.active );
 		} );
 
@@ -161,14 +245,25 @@ const DatePicker = ( function () {
 	 * @param  {Event}  event
 	 */
 	const blurHandler = event => {
-		const isInput    = event.target.classList.contains( classNames.input );
-		const isCalendar = event.target.classList.contains( classNames.calendarContainer );
+		const target     = event.target;
+		const isInput    = hasClass( { element: target, className : classNames.input } );
+		const isCalendar = hasClass( { element: target, className : classNames.calendarContainer } );
 
 		// Prevent close pickers if user clicked one of the pickers
 		if ( isInput || isCalendar )
 			return;
 
 		closePickers();
+	}
+
+	/**
+	 * Function to determine if an element has an specific class
+	 * @param  {Node}   options.element
+	 * @param  {String} options.className
+	 * @return {Bool}
+	 */
+	const hasClass = ( { element, className } ) => {
+		return element.classList.contains( className );
 	}
 
 	return {
