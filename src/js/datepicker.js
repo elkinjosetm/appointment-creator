@@ -16,14 +16,33 @@ const DatePicker = ( function () {
 
 		const datePickers = getElementsByClass( { className : `.${ classNames.wrapper }` } );
 
-		datePickers.forEach( datePicker => {
-			// Build picker layout
-			renderPickerLayout( datePicker );
-			addInputEventHandler( datePicker );
-		} );
+		// Attach onClick event to every datePicker input
+		datePickers.forEach( addPickerEventHandler );
 
 		// Handle on Blur event
 		document.addEventListener( 'click', blurHandler );
+	}
+
+	/**
+	 * Function to attach onClick event to the given datePicker
+	 *
+	 * @param  {Node}   datePicker
+	 */
+	const addPickerEventHandler = datePicker => {
+		const input = getElementsByClass( { className : `.${ classNames.input }`, sourceElement : datePicker } )[ 0 ];
+
+		// Render initial calendar
+		render( { datePicker : datePicker } );
+
+		input.addEventListener( 'click', event => {
+			closePickers();
+
+			if ( ! hasClass( { element: datePicker, className : classNames.active } ) )
+				datePicker.classList.add( classNames.active );
+
+			// Re-render calendar
+			render( { datePicker : datePicker } );
+		} );
 	}
 
 	/**
@@ -32,17 +51,50 @@ const DatePicker = ( function () {
 	 *
 	 * @param  {Node}   datePicker
 	 */
-	const renderPickerLayout = datePicker => {
-		const calendarContainer = createElement( { nodeName : 'div' } );
+	const render = ( { datePicker, date = currentDate } ) => {
+		const calendarContainer = getCalendarContainer( datePicker );
 
 		// Render calendar table
 		calendarContainer.appendChild( buildCalendarTable( {
+			date     : date,
 			onSelect : onSelectDayHandler.bind( null, datePicker ),
 		} ) );
+	}
+
+	/**
+	 * Function to get the new calendar container,
+	 * or, if there is a container already, clear it out
+	 * and return it
+	 *
+	 * @param  {Node}   datePicker
+	 * @return {Node}
+	 */
+	const getCalendarContainer = datePicker => {
+		// byDefault create an empty container
+		let calendarContainer = createElement( { nodeName : 'div' } );
+		let isNew             = true;
+
+		// Set element class
+		calendarContainer.classList.add( classNames.calendarContainer );
+
+		// Delete previous calendar data if there is any
+		datePicker.childNodes.forEach( node => {
+			if ( ! ( isElement( node ) && hasClass( { element : node, className : classNames.calendarContainer } ) ) )
+				return;
+
+			// Clear calendarContainer
+			while ( node.hasChildNodes() )
+				node.removeChild( node.lastChild );
+
+			isNew             = false;
+			calendarContainer = node;
+		} );
 
 		// Add calendar container below the input
-		calendarContainer.className = classNames.calendarContainer;
-		datePicker.appendChild( calendarContainer );
+		if ( isNew )
+			datePicker.appendChild( calendarContainer );
+
+		return calendarContainer;
 	}
 
 	/**
@@ -51,7 +103,7 @@ const DatePicker = ( function () {
 	 * @param  {Date}   date
 	 * @return {Node}
 	 */
-	const buildCalendarTable = ( { date = currentDate, onSelect } ) => {
+	const buildCalendarTable = ( { date, onSelect } ) => {
 		const calendar = createElement( { nodeName : 'table' } );
 
 		calendar.classList.add( classNames.calendarTable );
@@ -238,23 +290,6 @@ const DatePicker = ( function () {
 	}
 
 	/**
-	 * Function to attach onClick event to datePicker input
-	 * in the DOM
-	 *
-	 * @param  {Node}   datePicker
-	 */
-	const addInputEventHandler = datePicker => {
-		const input = getElementsByClass( { className : `.${ classNames.input }`, sourceElement : datePicker } )[ 0 ];
-
-		input.addEventListener( 'click', event => {
-			closePickers();
-
-			if ( ! hasClass( { element: datePicker, className : classNames.active } ) )
-				datePicker.classList.add( classNames.active );
-		} );
-	}
-
-	/**
 	 * Function to close every active datePickers in DOM
 	 */
 	const closePickers = () => {
@@ -296,6 +331,20 @@ const DatePicker = ( function () {
 	 */
 	const hasClass = ( { element, className } ) => {
 		return element.classList.contains( className );
+	}
+
+	/**
+	 * Returns true if it is a DOM element
+	 *
+	 * @param  {Any}      node
+	 * @return {Boolean}
+	 */
+	const isElement = node => {
+		return (
+			typeof HTMLElement === "object" ?
+			node instanceof HTMLElement :
+			node && typeof node === "object" && node !== null && node.nodeType === 1 && typeof node.nodeName==="string"
+		);
 	}
 
 	return {
