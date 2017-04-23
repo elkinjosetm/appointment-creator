@@ -143,6 +143,10 @@ const DatePicker = ( function () {
 		back.innerHTML  = '&#10094;';
 		next.innerHTML  = '&#10095;';
 
+		// Add buttons event handlers
+		back.addEventListener( 'click', onChangeMonthHandler.bind( null, datePicker, date, selectedDate, false ) );
+		next.addEventListener( 'click', onChangeMonthHandler.bind( null, datePicker, date, selectedDate, true ) );
+
 		// Add items to selector container
 		selector.appendChild( back );
 		selector.appendChild( title );
@@ -390,6 +394,34 @@ const DatePicker = ( function () {
 
 		event.preventDefault();
 		closePickers();
+	}
+
+	/**
+	 * Function to handle on change month
+	 *
+	 * @param  {Node}   datePicker
+	 * @param  {Date}   date
+	 * @param  {Date}   selectedDate
+	 * @param  {Boolean} next
+	 * @param  {Event}   event
+	 */
+	const onChangeMonthHandler = ( datePicker, date, selectedDate, next, event ) => {
+		// Create new date from the given, to prevent
+		// reference object
+		const newDate = new Date( date );
+
+		if ( next )
+			newDate.setMonth( newDate.getMonth() + 1 );
+		else
+			newDate.setMonth( newDate.getMonth() - 1 );
+
+		render( {
+			datePicker   : datePicker,
+			date         : newDate,
+			selectedDate : selectedDate,
+		} );
+
+		event.preventDefault();
 	}
 
 	/**
