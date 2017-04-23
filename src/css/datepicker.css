@@ -46,3 +46,9 @@
 {
 	background-color: rgba( 0,0,0,.075 );
 }
+
+.datepicker__calendar-table td.selected a
+{
+	color            : #fff;
+	background-color : #337ab7;
+}

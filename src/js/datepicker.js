@@ -35,13 +35,14 @@ const DatePicker = ( function () {
 		render( { datePicker : datePicker } );
 
 		input.addEventListener( 'click', event => {
+			const target = event.target;
 			closePickers();
 
 			if ( ! hasClass( { element: datePicker, className : classNames.active } ) )
 				datePicker.classList.add( classNames.active );
 
 			// Re-render calendar
-			render( { datePicker : datePicker } );
+			render( { datePicker : datePicker, date : target.value != '' ? new Date( target.value ) : undefined } );
 		} );
 	}
 
@@ -100,7 +101,8 @@ const DatePicker = ( function () {
 	/**
 	 * Function to build the calendar table
 	 *
-	 * @param  {Date}   date
+	 * @param  {Date}     options.data
+	 * @param  {Function} options.onSelect
 	 * @return {Node}
 	 */
 	const buildCalendarTable = ( { date, onSelect } ) => {
@@ -109,8 +111,8 @@ const DatePicker = ( function () {
 		calendar.classList.add( classNames.calendarTable );
 
 		// Build calendar table
-		calendar.appendChild( buildTableHead( date ) );
-		calendar.appendChild( buildTableBody( { date: date, onSelect : onSelect } ) );
+		calendar.appendChild( buildHead( date ) );
+		calendar.appendChild( buildCalendarContent( { date: date, onSelect : onSelect } ) );
 
 		return calendar;
 	}
@@ -121,7 +123,7 @@ const DatePicker = ( function () {
 	 * @param  {Date}   date
 	 * @return {Node}
 	 */
-	const buildTableHead = date => {
+	const buildHead = date => {
 		const thead = createElement( { nodeName : 'thead' } );
 		const tr    = createElement( { nodeName : 'tr' } );
 
@@ -142,48 +144,71 @@ const DatePicker = ( function () {
 	}
 
 	/**
-	 * Function to build the table body for a given date
+	 * Function to build the calendar content for a given date
 	 *
-	 * @param  {Date} date
+	 * @param  {Date}     options.data
+	 * @param  {Function} options.onSelect
 	 * @return {Node}
 	 */
-	const buildTableBody = ( { date, onSelect } ) => {
+	const buildCalendarContent = ( { date, onSelect } ) => {
 		const tbody     = createElement( { nodeName : 'tbody' } );
-		const monthData = buildMonthData( date );
+		const monthData = monthMatrix( date );
 
-		monthData.forEach( week => tbody.appendChild( buildBodyRow( { data : week, onSelect : onSelect } ) ) );
+		monthData.forEach( week => tbody.appendChild( buildWeek( {
+			data     : week,
+			onSelect : onSelect
+		} ) ) );
 
 		return tbody;
 	}
 
 	/**
-	 * Function to build a body row
+	 * Function to build a week row
 	 *
-	 * @param  {Object} data
+	 * @param  {Date}     options.data
+	 * @param  {Function} options.onSelect
 	 * @return {Node}
 	 */
-	const buildBodyRow = ( { data, onSelect } ) => {
+	const buildWeek = ( { data, onSelect } ) => {
 		const row = createElement( { nodeName : 'tr' } );
 
-		data.forEach( dayData => {
-			const cell   = createElement( { nodeName : 'td' } );
-			const button = createElement( { nodeName : 'a' } );
-
-			if ( dayData.today )
-				cell.classList.add( 'today' );
-
-			button.innerText = dayData.day;
-			button.classList.add( classNames.calendarDay );
-
-			// Handle on click day
-			button.addEventListener( 'click', onSelect.bind( null, dayData ) );
-
-			cell.appendChild( button );
-
-			row.appendChild( cell );
-		} );
+		data.forEach( dayData => row.appendChild( buildDay( {
+			data     : dayData,
+			onSelect : onSelect
+		} ) ) );
 
 		return row;
+	}
+
+	/**
+	 * Function to build a day in week
+	 *
+	 * @param  {Date}     options.data
+	 * @param  {Function} options.onSelect
+	 * @return {Node}
+	 */
+	const buildDay = ( { data, onSelect } ) => {
+		const cell   = createElement( { nodeName : 'td' } );
+		const button = createElement( { nodeName : 'a' } );
+
+		if ( data.today )
+		{
+			cell.classList.add( 'today' );
+			cell.setAttribute( 'title', 'Today' );
+		}
+
+		if ( data.selected )
+			cell.classList.add( 'selected' );
+
+		button.innerText = data.day;
+		button.classList.add( classNames.calendarDay );
+
+		// Handle on click day
+		button.addEventListener( 'click', onSelect.bind( null, data ) );
+
+		cell.appendChild( button );
+
+		return cell;
 	}
 
 	/**
@@ -205,12 +230,12 @@ const DatePicker = ( function () {
 	}
 
 	/**
-	 * Function to uild the currentMonthData
+	 * Function to build the currentMonth matrix
 	 *
 	 * @param  {Date}        date
 	 * @return {Object[]}
 	 */
-	const buildMonthData = date => {
+	const monthMatrix = date => {
 		const firstDayOfMonthDate     = new Date( date.getFullYear(), date.getMonth(), 1 );
 		const firstDayOfMonthPosition = firstDayOfMonthDate.getDay();
 
@@ -232,15 +257,17 @@ const DatePicker = ( function () {
 				const currentDayInWeekDate = new Date( firstDayOfWeekDate );
 				const currentDayInWeekDay  = firstDayOfWeekDate.getDate();
 
-				const isToday = firstDayOfWeekDate.toDateString() === currentDate.toDateString();
+				const isToday    = firstDayOfWeekDate.toDateString() === currentDate.toDateString();
+				const isSelected = date.toDateString() === firstDayOfWeekDate.toDateString();
 
 				// Increase day date
 				firstDayOfWeekDate.setDate( firstDayOfWeekDate.getDate() + 1 );
 
 				 return {
-					date  : currentDayInWeekDate,
-					day   : currentDayInWeekDay,
-					today : isToday,
+					date     : currentDayInWeekDate,
+					day      : currentDayInWeekDay,
+					today    : isToday,
+					selected : isSelected,
 				};
 			} );
 		} );
@@ -279,7 +306,7 @@ const DatePicker = ( function () {
 		const input = getElementsByClass( { className : `.${ classNames.input }`, sourceElement : datePicker } )[ 0 ];
 
 		const year  = dayData.date.getFullYear();
-		const month = dayData.date.getMonth();
+		const month = dayData.date.getMonth() + 1;
 		const day   = dayData.date.getDate();
 
 		// Update input value with selected date
