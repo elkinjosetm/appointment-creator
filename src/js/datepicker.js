@@ -1,12 +1,14 @@
 const DatePicker = ( function () {
-	const currentDate = new Date();
-	let classNames   = {
-		wrapper           : 'datepicker',
-		active            : 'datepicker__active',
-		input             : 'datepicker__input',
-		calendarContainer : 'datepicker__calendar-container',
-		calendarTable     : 'datepicker__calendar-table',
-		calendarDay       : 'datepicker__calendar-table__day',
+	let classNames = {
+		wrapper              : 'datepicker',
+		active               : 'datepicker__active',
+		input                : 'datepicker__input',
+		calendarContainer    : 'datepicker__calendar__container',
+		calendarHeader       : 'datepicker__calendar__header',
+		calendarHeaderTitle  : 'datepicker__calendar__header__label',
+		calendarHeaderButton : 'datepicker__calendar__header__button',
+		calendarTable        : 'datepicker__calendar__table',
+		calendarDay          : 'datepicker__calendar__table__day',
 	};
 
 	const init = config => {
@@ -41,8 +43,14 @@ const DatePicker = ( function () {
 			if ( ! hasClass( { element: datePicker, className : classNames.active } ) )
 				datePicker.classList.add( classNames.active );
 
+			const selectedDate = target.value != '' ? new Date( target.value ) : undefined;
+
 			// Re-render calendar
-			render( { datePicker : datePicker, date : target.value != '' ? new Date( target.value ) : undefined } );
+			render( {
+				datePicker   : datePicker,
+				date         : selectedDate,
+				selectedDate : selectedDate,
+			} );
 		} );
 	}
 
@@ -50,15 +58,25 @@ const DatePicker = ( function () {
 	 * Function to render the calendar to be displayed when click the
 	 * datePickerInput
 	 *
-	 * @param  {Node}   datePicker
+	 * @param  {Node} options.datePicker
+	 * @param  {Date} options.date
+	 * @param  {Date} options.selectedDate
 	 */
-	const render = ( { datePicker, date = currentDate } ) => {
+	const render = ( { datePicker, date = new Date(), selectedDate = new Date() } ) => {
 		const calendarContainer = getCalendarContainer( datePicker );
+
+
+		calendarContainer.appendChild( buildCalendarHead( {
+			date         : date,
+			selectedDate : selectedDate,
+			datePicker   : datePicker,
+		} ) );
 
 		// Render calendar table
 		calendarContainer.appendChild( buildCalendarTable( {
-			date     : date,
-			onSelect : onSelectDayHandler.bind( null, datePicker ),
+			date         : date,
+			selectedDate : selectedDate,
+			onSelect     : onSelectDayHandler.bind( null, datePicker ),
 		} ) );
 	}
 
@@ -99,20 +117,60 @@ const DatePicker = ( function () {
 	}
 
 	/**
+	 * Function to build the calendar head, which is
+	 * basically the month selector
+	 *
+	 * @param  {Node} options.datePicker
+	 * @param  {Date} options.date
+	 * @param  {Date} options.selectedDate
+	 * @return {Node}
+	 */
+	const buildCalendarHead = ( { datePicker, date, selectedDate } ) => {
+		const monthName = getLocaleStringFromDate( { date : date, options : { month : "long" } } );
+		const selector  = createElement( { nodeName : 'div' } );
+		const title     = createElement( { nodeName : 'span' } );
+		const back      = createElement( { nodeName : 'a' } );
+		const next      = createElement( { nodeName : 'a' } );
+
+		// Add proper classNames
+		selector.classList.add( classNames.calendarHeader );
+		title.classList.add( classNames.calendarHeaderTitle );
+		back.classList.add( classNames.calendarHeaderButton );
+		next.classList.add( classNames.calendarHeaderButton );
+
+		// Set Proper values
+		title.innerText = `${ monthName } ${ date.getFullYear() }`;
+		back.innerHTML  = '&#10094;';
+		next.innerHTML  = '&#10095;';
+
+		// Add items to selector container
+		selector.appendChild( back );
+		selector.appendChild( title );
+		selector.appendChild( next );
+
+		return selector;
+	}
+
+	/**
 	 * Function to build the calendar table
 	 *
-	 * @param  {Date}     options.data
+	 * @param  {Date}     options.date
+	 * @param  {Date}     options.selectedDate
 	 * @param  {Function} options.onSelect
 	 * @return {Node}
 	 */
-	const buildCalendarTable = ( { date, onSelect } ) => {
+	const buildCalendarTable = ( { date, selectedDate, onSelect } ) => {
 		const calendar = createElement( { nodeName : 'table' } );
 
 		calendar.classList.add( classNames.calendarTable );
 
 		// Build calendar table
-		calendar.appendChild( buildHead( date ) );
-		calendar.appendChild( buildCalendarContent( { date: date, onSelect : onSelect } ) );
+		calendar.appendChild( buildCalendarWeekDays( date ) );
+		calendar.appendChild( buildCalendarContent( {
+			date         : date,
+			selectedDate : selectedDate,
+			onSelect     : onSelect
+		} ) );
 
 		return calendar;
 	}
@@ -123,12 +181,12 @@ const DatePicker = ( function () {
 	 * @param  {Date}   date
 	 * @return {Node}
 	 */
-	const buildHead = date => {
+	const buildCalendarWeekDays = date => {
 		const thead = createElement( { nodeName : 'thead' } );
 		const tr    = createElement( { nodeName : 'tr' } );
 
 		// Get weekDays names
-		const weekDays = getWeekDays( { date : date } );
+		const weekDays = getWeekDays( date );
 
 		// Build calendarTable column names
 		// with the weekDay name
@@ -146,15 +204,19 @@ const DatePicker = ( function () {
 	/**
 	 * Function to build the calendar content for a given date
 	 *
-	 * @param  {Date}     options.data
+	 * @param  {Date}     options.date
+	 * @param  {Date}     options.selectedDate
 	 * @param  {Function} options.onSelect
 	 * @return {Node}
 	 */
-	const buildCalendarContent = ( { date, onSelect } ) => {
+	const buildCalendarContent = ( { date, selectedDate, onSelect } ) => {
 		const tbody     = createElement( { nodeName : 'tbody' } );
-		const monthData = monthMatrix( date );
+		const monthData = monthMatrix( {
+			date         : date,
+			selectedDate : selectedDate,
+		} );
 
-		monthData.forEach( week => tbody.appendChild( buildWeek( {
+		monthData.forEach( week => tbody.appendChild( buildWeekRow( {
 			data     : week,
 			onSelect : onSelect
 		} ) ) );
@@ -169,7 +231,7 @@ const DatePicker = ( function () {
 	 * @param  {Function} options.onSelect
 	 * @return {Node}
 	 */
-	const buildWeek = ( { data, onSelect } ) => {
+	const buildWeekRow = ( { data, onSelect } ) => {
 		const row = createElement( { nodeName : 'tr' } );
 
 		data.forEach( dayData => row.appendChild( buildDay( {
@@ -219,14 +281,26 @@ const DatePicker = ( function () {
 	 * @param  {String} options.locale
 	 * @return {String[]}
 	 */
-	const getWeekDays = ( { date, format = "narrow", locale = "en-US" } ) => {
+	const getWeekDays = date => {
 		return Array.from( { length: 7 } ).map( ( value, index ) => {
 			const newDate = new Date( date.getDate() - date.getDay() );
 			newDate.setDate( index );
 
-			// getDayName into localeString
-			return newDate.toLocaleString( locale, { weekday: format } );
+			return getLocaleStringFromDate( { date : newDate, options : { weekday: "narrow" } } );
 		} );
+	}
+
+	/**
+	 * Function to get certain information based on an specific locale
+	 * from a given Date
+	 *
+	 * @param  {Date}   options.date
+	 * @param  {Object} options.options
+	 * @param  {String} options.locale
+	 * @return {String}
+	 */
+	const getLocaleStringFromDate = ( { date, options, locale = "en-US" } ) => {
+		return date.toLocaleString( locale, options );
 	}
 
 	/**
@@ -235,7 +309,8 @@ const DatePicker = ( function () {
 	 * @param  {Date}        date
 	 * @return {Object[]}
 	 */
-	const monthMatrix = date => {
+	const monthMatrix = ( { date, selectedDate } ) => {
+		const currentDate             = new Date;
 		const firstDayOfMonthDate     = new Date( date.getFullYear(), date.getMonth(), 1 );
 		const firstDayOfMonthPosition = firstDayOfMonthDate.getDay();
 
@@ -254,11 +329,12 @@ const DatePicker = ( function () {
 		 */
 		return Array.from( { length: 6 } ).map( () => {
 			return Array.from( { length: 7 } ).map( () => {
+				// Create a new date to prevent reference objects
 				const currentDayInWeekDate = new Date( firstDayOfWeekDate );
 				const currentDayInWeekDay  = firstDayOfWeekDate.getDate();
 
 				const isToday    = firstDayOfWeekDate.toDateString() === currentDate.toDateString();
-				const isSelected = date.toDateString() === firstDayOfWeekDate.toDateString();
+				const isSelected = selectedDate ? selectedDate.toDateString() === firstDayOfWeekDate.toDateString() : false;
 
 				// Increase day date
 				firstDayOfWeekDate.setDate( firstDayOfWeekDate.getDate() + 1 );
@@ -340,6 +416,9 @@ const DatePicker = ( function () {
 		let isCalendar = hasClass( { element : target, className : classNames.calendarContainer } );
 
 		// Also check if the event coming from an element inside the calendar
+		isCalendar = ! isCalendar ? hasClass( { element : target, className : classNames.calendarHeader } ) : isCalendar;
+		isCalendar = ! isCalendar ? hasClass( { element : target, className : classNames.calendarHeaderTitle } ) : isCalendar;
+		isCalendar = ! isCalendar ? hasClass( { element : target, className : classNames.calendarHeaderButton } ) : isCalendar;
 		isCalendar = ! isCalendar ? hasClass( { element : target, className : classNames.calendarTable } ) : isCalendar;
 		isCalendar = ! isCalendar ? hasClass( { element : target, className : classNames.calendarDay } ) : isCalendar;
 
