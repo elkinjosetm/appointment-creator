@@ -358,28 +358,6 @@ const DatePicker = ( function () {
 	}
 
 	/**
-	 * Function the create a simple DOM element
-	 *
-	 * @param  {String} nodeName
-	 * @param  {Node}   targetElement [Element in which the node will be created (Optional)]
-	 * @return {Node}
-	 */
-	const createElement = ( { nodeName, targetElement = document } ) => {
-		return targetElement.createElement( nodeName );
-	}
-
-	/**
-	 * Generic function to get elements from DOM by a className
-	 *
-	 * @param  {String}  className
-	 * @param  {Node}    sourceElement
-	 * @return {Node[]}
-	 */
-	const getElementsByClass = ( { className, sourceElement = document } ) => {
-		return sourceElement.querySelectorAll( className );
-	}
-
-	/**
 	 * Function to handle on select day
 	 *
 	 * @param  {Node}   datePicker
@@ -447,9 +425,10 @@ const DatePicker = ( function () {
 	 * @param  {Event}  event
 	 */
 	const blurHandler = event => {
-		const target   = event.target;
-		let isInput    = hasClass( { element : target, className : classNames.input } );
-		let isCalendar = hasClass( { element : target, className : classNames.calendarContainer } );
+		const target    = event.target;
+		const isInput   = hasClass( { element : target, className : classNames.input } );
+		const isTrigger = hasClass( { element : target, className : classNames.trigger } );
+		let isCalendar  = hasClass( { element : target, className : classNames.calendarContainer } );
 
 		// Also check if the event coming from an element inside the calendar
 		isCalendar = ! isCalendar ? hasClass( { element : target, className : classNames.calendarHeader } ) : isCalendar;
@@ -458,14 +437,33 @@ const DatePicker = ( function () {
 		isCalendar = ! isCalendar ? hasClass( { element : target, className : classNames.calendarTable } ) : isCalendar;
 		isCalendar = ! isCalendar ? hasClass( { element : target, className : classNames.calendarDay } ) : isCalendar;
 
-		// Validate trigger
-		isInput = ! isInput ? hasClass( { element : target, className : classNames.trigger } ) : isInput;
-
 		// Prevent close pickers if user clicked one of the pickers
-		if ( isInput || isCalendar )
+		if ( isInput || isTrigger || isCalendar )
 			return;
 
 		closePickers();
+	}
+
+	/**
+	 * Function the create a simple DOM element
+	 *
+	 * @param  {String} nodeName
+	 * @param  {Node}   targetElement [Element in which the node will be created (Optional)]
+	 * @return {Node}
+	 */
+	const createElement = ( { nodeName, targetElement = document } ) => {
+		return targetElement.createElement( nodeName );
+	}
+
+	/**
+	 * Generic function to get elements from DOM by a className
+	 *
+	 * @param  {String}  className
+	 * @param  {Node}    sourceElement
+	 * @return {Node[]}
+	 */
+	const getElementsByClass = ( { className, sourceElement = document } ) => {
+		return sourceElement.querySelectorAll( className );
 	}
 
 	/**
