@@ -39,6 +39,9 @@ const AppointmentCreator = ( function () {
 		event.preventDefault();
 		const data = serializeForm();
 
+		if ( ! data )
+			return;
+
 		// Validate fields
 		if ( ! data.date || ! data.time )
 		{
@@ -51,11 +54,20 @@ const AppointmentCreator = ( function () {
 
 	const handleOnClickCancel = event => {
 		event.preventDefault();
+		const status = clearForm();
+
+		if ( ! status )
+			return;
+
+		summary.innerText = '';
 	}
 
 	const serializeForm = () => {
 		if ( ! form )
+		{
+			alert( 'Unable to find the app form' );
 			return;
+		}
 
 		const elements = form.elements;
 
@@ -63,6 +75,24 @@ const AppointmentCreator = ( function () {
 			date : elements.date ? elements.date.value : undefined,
 			time : elements.time ? elements.time.value : undefined,
 		};
+	}
+
+	const clearForm = () => {
+		if ( ! form )
+		{
+			alert( 'Unable to find the app form' );
+			return false;
+		}
+
+		const elements = form.elements;
+
+		if ( elements.date )
+			elements.date.value = '';
+
+		if ( elements.time )
+			elements.time.value = '12:00 PM';
+
+		return true;
 	}
 
 	const getElementById = ( { id, sourceElement = document } ) => {
