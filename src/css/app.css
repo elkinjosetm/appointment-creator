@@ -16,3 +16,16 @@ body
 	font-size     : 14px;
 	box-shadow    : inset 0 1px 1px rgba( 0,0,0,.075 );
 }
+
+.datepicker__trigger,
+.timepicker__trigger
+{
+	font-size   : 20px;
+	margin-left : 8px;
+	margin-top  : 5px;
+}
+
+.timepicker
+{
+	margin-left : 20px;
+}
