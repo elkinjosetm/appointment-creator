@@ -494,6 +494,3 @@ const DatePicker = ( function () {
 		init : init,
 	};
 } )();
-
-// Initialize DatePicker
-DatePicker.init();

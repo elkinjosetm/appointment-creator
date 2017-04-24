@@ -282,6 +282,3 @@ const TimePicker = ( function () {
 		init : init,
 	};
 } )();
-
-// Initialize TimePicker
-TimePicker.init();
