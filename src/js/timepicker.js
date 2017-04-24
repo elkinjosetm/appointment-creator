@@ -48,6 +48,8 @@ const TimePicker = ( function () {
 				timePicker   : timePicker,
 				selectedTime : input.value,
 			} );
+
+			event.preventDefault();
 		};
 
 		input.addEventListener( 'click', onClickEvent );

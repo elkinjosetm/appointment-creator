@@ -1,6 +1,5 @@
 const AppointmentCreator = ( function () {
 	const datePickerInstance = DatePicker();
-	const datePickerSelector = '#datepicker';
 	let form,
 		summary,
 		saveButton,
@@ -26,11 +25,7 @@ const AppointmentCreator = ( function () {
 	const initializePickers = () => {
 		// Initialize DatePicker
 		if ( datePickerInstance )
-		{
-			datePickerInstance.init( {
-				selector : datePickerSelector,
-			} );
-		}
+			datePickerInstance.init( { selector : '.datepicker' } );
 
 		// Initialize TimePickers
 		if ( TimePicker )
