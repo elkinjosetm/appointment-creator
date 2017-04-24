@@ -4,6 +4,18 @@
 	position : relative;
 }
 
+.datepicker__trigger
+{
+	background-color : transparent;
+	border           : none;
+	float            : right;
+	font-size        : 20px;
+	padding          : 0;
+	margin-left      : 8px;
+	margin-top       : 5px;
+	cursor           : pointer;
+}
+
 .datepicker__calendar__container
 {
 	opacity          : 0;
@@ -23,18 +35,6 @@
 	opacity    : 1;
 	visibility : visible;
 	margin-top : 10px;
-}
-
-.datepicker__trigger
-{
-	background-color : transparent;
-	border           : none;
-	float            : right;
-	font-size        : 20px;
-	padding          : 0;
-	margin-left      : 8px;
-	margin-top       : 5px;
-	cursor           : pointer;
 }
 
 .datepicker__calendar__header
