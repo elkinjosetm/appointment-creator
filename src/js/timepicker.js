@@ -67,6 +67,8 @@ const TimePicker = ( function () {
 		hoursContainer.appendChild( buildHourList( {
 			selectedTime : selectedTime,
 		} ) );
+
+		scrollToSelected( hoursContainer );
 	}
 
 	/**
@@ -156,6 +158,25 @@ const TimePicker = ( function () {
 		} );
 
 		return data;
+	}
+
+	/**
+	 * Function to scroll the hoursContainer to the selected one
+	 *
+	 * @param  {Node}   hoursContainer
+	 */
+	const scrollToSelected = hoursContainer => {
+		let selectedItem = getElementsByClass( { className : '.selected', sourceElement : hoursContainer } );
+
+		// If there is no selected item, then prevent doing anything
+		if ( selectedItem.length == 0 )
+			return;
+
+		// Select the first one
+		selectedItem = selectedItem[ 0 ];
+
+		// Scroll hoursContainer to the selected one
+		hoursContainer.scrollTop = selectedItem.offsetTop;
 	}
 
 	/**
