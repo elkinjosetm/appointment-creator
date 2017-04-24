@@ -318,7 +318,7 @@ const DatePicker = ( function () {
 	 * @return {Object[]}
 	 */
 	const monthMatrix = ( { date, selectedDate } ) => {
-		const currentDate             = new Date;
+		const currentDate             = new Date();
 		const firstDayOfMonthDate     = new Date( date.getFullYear(), date.getMonth(), 1 );
 		const firstDayOfMonthPosition = firstDayOfMonthDate.getDay();
 

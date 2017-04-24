@@ -15,3 +15,45 @@
 	margin-top       : 5px;
 	cursor           : pointer;
 }
+
+.timepicker__hours__container
+{
+	overflow-y       : scroll;
+	opacity          : 0;
+	visibility       : hidden;
+	position         : absolute;
+	width            : 200px;
+	max-height       : 266px;
+	border           : 1px solid #ccc;
+	border-radius    : 4px;
+	box-shadow       : 1px 1px 1px rgba( 0, 0, 0, .1 );
+	background-color : #fff;
+	transition       : all .3s;
+	user-select      : none;
+}
+
+.timepicker.timepicker__active .timepicker__hours__container
+{
+	opacity    : 1;
+	visibility : visible;
+	margin-top : 10px;
+}
+
+.timepicker__hours__container ul
+{
+	margin     : 0;
+	padding    : 0;
+	list-style : none;
+}
+
+.timepicker__hours__container ul li a
+{
+	display : block;
+	cursor  : pointer;
+	padding : 10px;
+}
+
+.timepicker__hours__container ul li a:hover
+{
+	background-color : rgba( 0,0,0,.05 );
+}
