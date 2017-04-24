@@ -12,7 +12,7 @@ const TimePicker = ( function () {
 		// given by user
 		classNames = config && config.classNames ? config.classNames : classNames;
 
-		const timePickers = getElementsByClass( { className : `.${ classNames.wrapper }` } );
+		const timePickers = querySelectorAll( { selector : `.${ classNames.wrapper }` } );
 
 		// Attach onClick event to every timePicker input
 		timePickers.forEach( addPickerEventHandler );
@@ -27,8 +27,8 @@ const TimePicker = ( function () {
 	 * @param  {Node}   timePicker
 	 */
 	const addPickerEventHandler = timePicker => {
-		const input   = getElementsByClass( { className : `.${ classNames.input }`, sourceElement : timePicker } )[ 0 ];
-		const trigger = getElementsByClass( { className : `.${ classNames.trigger }`, sourceElement : timePicker } )[ 0 ];
+		const input   = querySelectorAll( { selector : `.${ classNames.input }`, sourceElement : timePicker } )[ 0 ];
+		const trigger = querySelectorAll( { selector : `.${ classNames.trigger }`, sourceElement : timePicker } )[ 0 ];
 
 		// Render initial timePicker
 		render( { timePicker : timePicker } );
@@ -174,7 +174,7 @@ const TimePicker = ( function () {
 	 * @param  {Event}  event
 	 */
 	const onSelectHourHandler = ( timePicker, data, event ) => {
-		const input = getElementsByClass( { className : `.${ classNames.input }`, sourceElement : timePicker } )[ 0 ];
+		const input = querySelectorAll( { selector : `.${ classNames.input }`, sourceElement : timePicker } )[ 0 ];
 
 		// Update input value with selected hour
 		input.value = data.time;
@@ -189,7 +189,7 @@ const TimePicker = ( function () {
 	 * @param  {Node}   hoursContainer
 	 */
 	const scrollToSelected = hoursContainer => {
-		let selectedItem = getElementsByClass( { className : '.selected', sourceElement : hoursContainer } );
+		let selectedItem = querySelectorAll( { selector : '.selected', sourceElement : hoursContainer } );
 
 		// If there is no selected item, then prevent doing anything
 		if ( selectedItem.length == 0 )
@@ -206,7 +206,7 @@ const TimePicker = ( function () {
 	 * Function to close every active timePickers in DOM
 	 */
 	const closePickers = () => {
-		const activePickers = getElementsByClass( { className : `.${ classNames.wrapper }.${ classNames.active }` } );
+		const activePickers = querySelectorAll( { selector : `.${ classNames.wrapper }.${ classNames.active }` } );
 
 		activePickers.forEach( timePicker => {
 			timePicker.classList.remove( classNames.active );
@@ -244,14 +244,14 @@ const TimePicker = ( function () {
 	}
 
 	/**
-	 * Generic function to get elements from DOM by a className
+	 * Generic function to get elements from DOM by a selector
 	 *
-	 * @param  {String}  className
+	 * @param  {String}  selector
 	 * @param  {Node}    sourceElement
 	 * @return {Node[]}
 	 */
-	const getElementsByClass = ( { className, sourceElement = document } ) => {
-		return sourceElement.querySelectorAll( className );
+	const querySelectorAll = ( { selector, sourceElement = document } ) => {
+		return sourceElement.querySelectorAll( selector );
 	}
 
 	/**

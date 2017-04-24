@@ -17,7 +17,7 @@ const DatePicker = ( function () {
 		// given by user
 		classNames = config && config.classNames ? config.classNames : classNames;
 
-		const datePickers = getElementsByClass( { className : `.${ classNames.wrapper }` } );
+		const datePickers = querySelectorAll( { selector : `.${ classNames.wrapper }` } );
 
 		// Attach onClick event to every datePicker input
 		datePickers.forEach( addPickerEventHandler );
@@ -32,8 +32,8 @@ const DatePicker = ( function () {
 	 * @param  {Node}   datePicker
 	 */
 	const addPickerEventHandler = datePicker => {
-		const input   = getElementsByClass( { className : `.${ classNames.input }`, sourceElement : datePicker } )[ 0 ];
-		const trigger = getElementsByClass( { className : `.${ classNames.trigger }`, sourceElement : datePicker } )[ 0 ];
+		const input   = querySelectorAll( { selector : `.${ classNames.input }`, sourceElement : datePicker } )[ 0 ];
+		const trigger = querySelectorAll( { selector : `.${ classNames.trigger }`, sourceElement : datePicker } )[ 0 ];
 
 		// Render initial calendar
 		render( { datePicker : datePicker } );
@@ -365,7 +365,7 @@ const DatePicker = ( function () {
 	 * @param  {Event}  event
 	 */
 	const onSelectDayHandler = ( datePicker, dayData, event ) => {
-		const input = getElementsByClass( { className : `.${ classNames.input }`, sourceElement : datePicker } )[ 0 ];
+		const input = querySelectorAll( { selector : `.${ classNames.input }`, sourceElement : datePicker } )[ 0 ];
 
 		const year  = dayData.date.getFullYear();
 		const month = dayData.date.getMonth() + 1;
@@ -410,7 +410,7 @@ const DatePicker = ( function () {
 	 * Function to close every active datePickers in DOM
 	 */
 	const closePickers = () => {
-		const activePickers = getElementsByClass( { className : `.${ classNames.wrapper }.${ classNames.active }` } );
+		const activePickers = querySelectorAll( { selector : `.${ classNames.wrapper }.${ classNames.active }` } );
 
 		activePickers.forEach( datePicker => {
 			datePicker.classList.remove( classNames.active );
@@ -456,14 +456,14 @@ const DatePicker = ( function () {
 	}
 
 	/**
-	 * Generic function to get elements from DOM by a className
+	 * Generic function to get elements from DOM by a selector
 	 *
-	 * @param  {String}  className
+	 * @param  {String}  selector
 	 * @param  {Node}    sourceElement
 	 * @return {Node[]}
 	 */
-	const getElementsByClass = ( { className, sourceElement = document } ) => {
-		return sourceElement.querySelectorAll( className );
+	const querySelectorAll = ( { selector, sourceElement = document } ) => {
+		return sourceElement.querySelectorAll( selector );
 	}
 
 	/**
