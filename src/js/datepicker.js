@@ -3,6 +3,7 @@ const DatePicker = ( function () {
 		wrapper              : 'datepicker',
 		active               : 'datepicker__active',
 		input                : 'datepicker__input',
+		trigger              : 'datepicker__trigger',
 		calendarContainer    : 'datepicker__calendar__container',
 		calendarHeader       : 'datepicker__calendar__header',
 		calendarHeaderTitle  : 'datepicker__calendar__header__label',
@@ -31,19 +32,20 @@ const DatePicker = ( function () {
 	 * @param  {Node}   datePicker
 	 */
 	const addPickerEventHandler = datePicker => {
-		const input = getElementsByClass( { className : `.${ classNames.input }`, sourceElement : datePicker } )[ 0 ];
+		const input   = getElementsByClass( { className : `.${ classNames.input }`, sourceElement : datePicker } )[ 0 ];
+		const trigger = getElementsByClass( { className : `.${ classNames.trigger }`, sourceElement : datePicker } )[ 0 ];
 
 		// Render initial calendar
 		render( { datePicker : datePicker } );
 
-		input.addEventListener( 'click', event => {
+		const onClickEvent = event => {
 			const target = event.target;
 			closePickers();
 
 			if ( ! hasClass( { element: datePicker, className : classNames.active } ) )
 				datePicker.classList.add( classNames.active );
 
-			const selectedDate = target.value != '' ? new Date( target.value ) : undefined;
+			const selectedDate = input.value ? new Date( input.value ) : undefined;
 
 			// Re-render calendar
 			render( {
@@ -51,7 +53,10 @@ const DatePicker = ( function () {
 				date         : selectedDate,
 				selectedDate : selectedDate,
 			} );
-		} );
+		};
+
+		input.addEventListener( 'click', onClickEvent );
+		trigger.addEventListener( 'click', onClickEvent );
 	}
 
 	/**
@@ -64,7 +69,6 @@ const DatePicker = ( function () {
 	 */
 	const render = ( { datePicker, date = new Date(), selectedDate = new Date() } ) => {
 		const calendarContainer = getCalendarContainer( datePicker );
-
 
 		calendarContainer.appendChild( buildCalendarHead( {
 			date         : date,
@@ -444,7 +448,7 @@ const DatePicker = ( function () {
 	 */
 	const blurHandler = event => {
 		const target   = event.target;
-		const isInput  = hasClass( { element : target, className : classNames.input } );
+		let isInput    = hasClass( { element : target, className : classNames.input } );
 		let isCalendar = hasClass( { element : target, className : classNames.calendarContainer } );
 
 		// Also check if the event coming from an element inside the calendar
@@ -453,6 +457,9 @@ const DatePicker = ( function () {
 		isCalendar = ! isCalendar ? hasClass( { element : target, className : classNames.calendarHeaderButton } ) : isCalendar;
 		isCalendar = ! isCalendar ? hasClass( { element : target, className : classNames.calendarTable } ) : isCalendar;
 		isCalendar = ! isCalendar ? hasClass( { element : target, className : classNames.calendarDay } ) : isCalendar;
+
+		// Validate trigger
+		isInput = ! isInput ? hasClass( { element : target, className : classNames.trigger } ) : isInput;
 
 		// Prevent close pickers if user clicked one of the pickers
 		if ( isInput || isCalendar )

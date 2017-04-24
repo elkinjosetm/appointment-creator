@@ -25,6 +25,18 @@
 	margin-top : 10px;
 }
 
+.datepicker__trigger
+{
+	background-color : transparent;
+	border           : none;
+	float            : right;
+	font-size        : 20px;
+	padding          : 0;
+	margin-left      : 8px;
+	margin-top       : 5px;
+	cursor           : pointer;
+}
+
 .datepicker__calendar__header
 {
 	text-align : center;
