@@ -35,33 +35,11 @@ const AppointmentCreator = ( function () {
 			cancelButton.addEventListener( 'click', handleOnClickCancel );
 	}
 
-	const handleOnClickSave = event => {
-		event.preventDefault();
-		const data = serializeForm();
-
-		if ( ! data )
-			return;
-
-		// Validate fields
-		if ( ! data.date || ! data.time )
-		{
-			alert( 'Date and Time are required' );
-			return;
-		}
-
-		summary.innerText = `Good! Your appointment is set for ${ data.date } at ${ data.time }. Thanks.`;
-	}
-
-	const handleOnClickCancel = event => {
-		event.preventDefault();
-		const status = clearForm();
-
-		if ( ! status )
-			return;
-
-		summary.innerText = '';
-	}
-
+	/**
+	 * Form Serializer
+	 *
+	 * @return {Object}
+	 */
 	const serializeForm = () => {
 		if ( ! form )
 		{
@@ -77,6 +55,11 @@ const AppointmentCreator = ( function () {
 		};
 	}
 
+	/**
+	 * Form Cleaner
+	 *
+	 * @return {Boolean}
+	 */
 	const clearForm = () => {
 		if ( ! form )
 		{
@@ -95,6 +78,50 @@ const AppointmentCreator = ( function () {
 		return true;
 	}
 
+	/**
+	 * On Save handler
+	 *
+	 * @param  {Event} event
+	 */
+	const handleOnClickSave = event => {
+		event.preventDefault();
+		const data = serializeForm();
+
+		if ( ! data )
+			return;
+
+		// Validate fields
+		if ( ! data.date || ! data.time )
+		{
+			alert( 'Date and Time are required' );
+			return;
+		}
+
+		summary.innerText = `Good! Your appointment is set for ${ data.date } at ${ data.time }. Thanks.`;
+	}
+
+	/**
+	 * On Cancel handler
+	 *
+	 * @param  {Event} event
+	 */
+	const handleOnClickCancel = event => {
+		event.preventDefault();
+		const status = clearForm();
+
+		if ( ! status )
+			return;
+
+		summary.innerText = '';
+	}
+
+	/**
+	 * Function to get an element by Id
+	 *
+	 * @param  {String} options.id
+	 * @param  {Node} options.sourceElement
+	 * @return {Node}
+	 */
 	const getElementById = ( { id, sourceElement = document } ) => {
 		return sourceElement.getElementById( id );
 	}
