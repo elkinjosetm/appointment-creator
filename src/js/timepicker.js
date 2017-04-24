@@ -33,6 +33,7 @@ const TimePicker = ( function () {
 		// Render initial timePicker
 		render( { timePicker : timePicker } );
 
+		// byDefault, the selected hour is 12:00 PM
 		input.value = '12:00 PM';
 
 		const onClickEvent = event => {
@@ -66,6 +67,7 @@ const TimePicker = ( function () {
 		// Render hour list
 		hoursContainer.appendChild( buildHourList( {
 			selectedTime : selectedTime,
+			onSelect     : onSelectHourHandler.bind( null, timePicker ),
 		} ) );
 
 		scrollToSelected( hoursContainer );
@@ -110,21 +112,25 @@ const TimePicker = ( function () {
 	/**
 	 * Function to build the hour list
 	 *
-	 * @param  {String}     options.selectedTime
+	 * @param  {String}   options.selectedTime
+	 * @param  {Function} options.onSelect
 	 * @return {Node}
 	 */
-	const buildHourList = ( { selectedTime } ) => {
+	const buildHourList = ( { selectedTime, onSelect } ) => {
 		const hoursData = buildHoursData( { selectedTime : selectedTime } );
 		const list      = createElement( { nodeName : 'ul' } );
 
-		hoursData.forEach( hourData => {
+		hoursData.forEach( data => {
 			const time   = createElement( { nodeName : 'li' } );
 			const button = createElement( { nodeName : 'a' } );
 
-			button.innerText = hourData.time;
+			button.innerText = data.time;
 
-			if ( hourData.selected )
+			if ( data.selected )
 				time.classList.add( 'selected' );
+
+			// Handle on click day
+			button.addEventListener( 'click', onSelect.bind( null, data ) );
 
 			time.appendChild( button );
 			list.appendChild( time );
@@ -158,6 +164,23 @@ const TimePicker = ( function () {
 		} );
 
 		return data;
+	}
+
+	/**
+	 * Function to handle on select hour
+	 *
+	 * @param  {Node}   timePicker
+	 * @param  {Object} data
+	 * @param  {Event}  event
+	 */
+	const onSelectHourHandler = ( timePicker, data, event ) => {
+		const input = getElementsByClass( { className : `.${ classNames.input }`, sourceElement : timePicker } )[ 0 ];
+
+		// Update input value with selected hour
+		input.value = data.time;
+
+		event.preventDefault();
+		closePickers();
 	}
 
 	/**
