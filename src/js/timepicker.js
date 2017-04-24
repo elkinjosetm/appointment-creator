@@ -33,6 +33,8 @@ const TimePicker = ( function () {
 		// Render initial timePicker
 		render( { timePicker : timePicker } );
 
+		input.value = '12:00 PM';
+
 		const onClickEvent = event => {
 			const target = event.target;
 			closePickers();
@@ -110,26 +112,50 @@ const TimePicker = ( function () {
 	 * @return {Node}
 	 */
 	const buildHourList = ( { selectedTime } ) => {
-		const list = createElement( { nodeName : 'ul' } );
+		const hoursData = buildHoursData( { selectedTime : selectedTime } );
+		const list      = createElement( { nodeName : 'ul' } );
 
-		Array.from( { length: 24 } ).forEach( ( value, hour ) => {
-			Array.from( { length: 4 } ).forEach( ( value, minute ) => {
-				const time   = createElement( { nodeName : 'li' } );
-				const button = createElement( { nodeName : 'a' } );
+		hoursData.forEach( hourData => {
+			const time   = createElement( { nodeName : 'li' } );
+			const button = createElement( { nodeName : 'a' } );
 
-				// Hour in 12 hours format
-				const hour12Format = hour == 0 ? 12 : hour > 12 ? hour - 12 : hour;
+			button.innerText = hourData.time;
 
-				// Display time in 12 hours format
-				button.innerText = `${ hour12Format }:${ minute == 0 ? '00' : minute * 15 } ${ hour >= 12 ? 'PM' : 'AM' }`;
+			if ( hourData.selected )
+				time.classList.add( 'selected' );
 
-				time.appendChild( button );
-
-				list.appendChild( time );
-			} );
+			time.appendChild( button );
+			list.appendChild( time );
 		} );
 
 		return list;
+	}
+
+	/**
+	 * Function to build the hour data
+	 *
+	 * @param  {String}    options.selectedTime
+	 * @return {Object[]}
+	 */
+	const buildHoursData = ( { selectedTime } ) => {
+		const data = [];
+
+		Array.from( { length: 24 } ).forEach( ( value, hour ) => {
+			Array.from( { length: 4 } ).forEach( ( value, minute ) => {
+				// Hour value in 12 hours format
+				const hour12Format = hour == 0 ? 12 : hour > 12 ? hour - 12 : hour;
+
+				// Build time in 12 hours format
+				const time = `${ hour12Format }:${ minute == 0 ? '00' : minute * 15 } ${ hour >= 12 ? 'PM' : 'AM' }`;
+
+				data.push( {
+					time     : time,
+					selected : selectedTime == time,
+				} );
+			} );
+		} );
+
+		return data;
 	}
 
 	/**
