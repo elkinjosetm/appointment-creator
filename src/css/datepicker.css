@@ -96,3 +96,11 @@
 	color            : #fff;
 	background-color : #337ab7;
 }
+
+.datepicker__calendar__table td.disabled a,
+.datepicker__calendar__table td.disabled a:hover
+{
+	color            : #d6d6d6;
+	background-color : transparent;
+	cursor           : not-allowed;
+}

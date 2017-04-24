@@ -1,23 +1,36 @@
 const AppointmentCreator = ( function () {
-	let form, summary, saveButton, cancelButton;
+	const datePickerInstance = DatePicker();
+	const datePickerSelector = '#datepicker';
+	let form,
+		summary,
+		saveButton,
+		cancelButton,
+		filters;
 
 	const init = () => {
 		form         = getElementById( { id : 'form' } );
 		summary      = getElementById( { id : 'summary' } );
 		saveButton   = getElementById( { id : 'save-button' } );
 		cancelButton = getElementById( { id : 'cancel-button' } );
+		filters      = querySelectorAll( { selector : '#form input[name="filter"]' } );
 
 		initializePickers();
 		addEventListeners();
+
+		filters.forEach( filter => filter.addEventListener( 'click', filterDatePickers ) );
 	}
 
 	/**
 	 * Funciton to initialize app pickers
 	 */
 	const initializePickers = () => {
-		// Initialize DatePickers
-		if ( DatePicker )
-			DatePicker.init();
+		// Initialize DatePicker
+		if ( datePickerInstance )
+		{
+			datePickerInstance.init( {
+				selector : datePickerSelector,
+			} );
+		}
 
 		// Initialize TimePickers
 		if ( TimePicker )
@@ -113,6 +126,24 @@ const AppointmentCreator = ( function () {
 			return;
 
 		summary.innerText = '';
+	}
+
+	const filterDatePickers = event => {
+		const target = event.target;
+		const filter = target.value;
+
+		datePickerInstance.setFilter( filter );
+	}
+
+	/**
+	 * Generic function to get elements from DOM by a selector
+	 *
+	 * @param  {String}  selector
+	 * @param  {Node}    sourceElement
+	 * @return {Node[]}
+	 */
+	const querySelectorAll = ( { selector, sourceElement = document } ) => {
+		return sourceElement.querySelectorAll( selector );
 	}
 
 	/**

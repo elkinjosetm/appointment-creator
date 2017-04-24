@@ -12,8 +12,25 @@
 		<h1>Welcome to the Appointment Creator!</h1>
 		<p>Please select a date for your appointment:</p>
 		<form id="form">
+			<div>
+				<div class="radio">
+					<label>
+						<input name="filter" type="radio" value="any" checked /> Any Date
+					</label>
+				</div>
+				<div class="radio">
+					<label>
+						<input name="filter" type="radio" value="weekends" /> Only Weekends
+					</label>
+				</div>
+				<div class="radio">
+					<label>
+						<input name="filter" type="radio" value="weekdays" /> Only Weekdays
+					</label>
+				</div>
+			</div>
 			<div class="form-group">
-				<div class="datepicker">
+				<div class="datepicker" id="datepicker">
 					<input name="date" class="form-control datepicker__input" placeholder="Choose a date..." readonly />
 					<button class="datepicker__trigger icon-calendar"></button>
 				</div>

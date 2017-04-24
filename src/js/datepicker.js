@@ -1,5 +1,5 @@
-const DatePicker = ( function () {
-	let classNames = {
+const DatePicker = () => {
+	const classNames = {
 		wrapper              : 'datepicker',
 		active               : 'datepicker__active',
 		input                : 'datepicker__input',
@@ -11,16 +11,18 @@ const DatePicker = ( function () {
 		calendarTable        : 'datepicker__calendar__table',
 		calendarDay          : 'datepicker__calendar__table__day',
 	};
+	let calendarFilter;
 
-	const init = config => {
-		// Use default classNames if there is no custom classNames
-		// given by user
-		classNames = config && config.classNames ? config.classNames : classNames;
+	const init = ( { selector, filter = 'any' } ) => {
+		if ( ! selector )
+			return;
 
-		const datePickers = querySelectorAll( { selector : `.${ classNames.wrapper }` } );
+		calendarFilter = filter;
+
+		const datePickers = querySelectorAll( { selector : selector } );
 
 		// Attach onClick event to every datePicker input
-		datePickers.forEach( addPickerEventHandler );
+		datePickers.forEach( addPickersEventHandler );
 
 		// Handle on Blur event
 		document.addEventListener( 'click', blurHandler );
@@ -29,30 +31,34 @@ const DatePicker = ( function () {
 	/**
 	 * Function to attach onClick event to the given datePicker
 	 *
-	 * @param  {Node}   datePicker
+	 * @param  {Node} datePicker
 	 */
-	const addPickerEventHandler = datePicker => {
+	const addPickersEventHandler = datePicker => {
 		const input   = querySelectorAll( { selector : `.${ classNames.input }`, sourceElement : datePicker } )[ 0 ];
 		const trigger = querySelectorAll( { selector : `.${ classNames.trigger }`, sourceElement : datePicker } )[ 0 ];
 
 		// Render initial calendar
-		render( { datePicker : datePicker } );
+		render( { datePicker: datePicker } );
 
 		const onClickEvent = event => {
-			const target = event.target;
-			closePickers();
+			const target           = event.target;
+			const targetDatePicker = target.parentNode;
 
-			if ( ! hasClass( { element: datePicker, className : classNames.active } ) )
-				datePicker.classList.add( classNames.active );
+			closePicker( targetDatePicker );
+
+			if ( ! hasClass( { element: targetDatePicker, className : classNames.active } ) )
+				targetDatePicker.classList.add( classNames.active );
 
 			const selectedDate = input.value ? new Date( input.value ) : undefined;
 
 			// Re-render calendar
 			render( {
-				datePicker   : datePicker,
+				datePicker   : targetDatePicker,
 				date         : selectedDate,
 				selectedDate : selectedDate,
 			} );
+
+			event.preventDefault();
 		};
 
 		input.addEventListener( 'click', onClickEvent );
@@ -63,9 +69,9 @@ const DatePicker = ( function () {
 	 * Function to render the calendar to be displayed when click the
 	 * datePickerInput
 	 *
-	 * @param  {Node} options.datePicker
-	 * @param  {Date} options.date
-	 * @param  {Date} options.selectedDate
+	 * @param  {Node}   options.datePicker
+	 * @param  {Date}   options.date
+	 * @param  {Date}   options.selectedDate
 	 */
 	const render = ( { datePicker, date = new Date(), selectedDate = new Date() } ) => {
 		const calendarContainer = getCalendarContainer( datePicker );
@@ -177,7 +183,7 @@ const DatePicker = ( function () {
 		calendar.appendChild( buildCalendarContent( {
 			date         : date,
 			selectedDate : selectedDate,
-			onSelect     : onSelect
+			onSelect     : onSelect,
 		} ) );
 
 		return calendar;
@@ -270,6 +276,9 @@ const DatePicker = ( function () {
 		if ( data.selected )
 			cell.classList.add( 'selected' );
 
+		if ( ! data.selectable )
+			cell.classList.add( 'disabled' );
+
 		button.innerText = data.day;
 		button.classList.add( classNames.calendarDay );
 
@@ -299,22 +308,10 @@ const DatePicker = ( function () {
 	}
 
 	/**
-	 * Function to get certain information based on an specific locale
-	 * from a given Date
-	 *
-	 * @param  {Date}   options.date
-	 * @param  {Object} options.options
-	 * @param  {String} options.locale
-	 * @return {String}
-	 */
-	const getLocaleStringFromDate = ( { date, options, locale = "en-US" } ) => {
-		return date.toLocaleString( locale, options );
-	}
-
-	/**
 	 * Function to build the currentMonth matrix
 	 *
-	 * @param  {Date}        date
+	 * @param  {Date}     options.date
+	 * @param  {Date}     options.selectedDate
 	 * @return {Object[]}
 	 */
 	const monthMatrix = ( { date, selectedDate } ) => {
@@ -338,23 +335,45 @@ const DatePicker = ( function () {
 		return Array.from( { length: 6 } ).map( () => {
 			return Array.from( { length: 7 } ).map( () => {
 				// Create a new date to prevent reference objects
-				const currentDayInWeekDate = new Date( firstDayOfWeekDate );
-				const currentDayInWeekDay  = firstDayOfWeekDate.getDate();
+				const currentDayInWeekDate     = new Date( firstDayOfWeekDate );
+				const currentDayInWeekDay      = firstDayOfWeekDate.getDate();
+				const currentDayInWeekPosition = firstDayOfWeekDate.getDay();
 
 				const isToday    = firstDayOfWeekDate.toDateString() === currentDate.toDateString();
 				const isSelected = selectedDate ? selectedDate.toDateString() === firstDayOfWeekDate.toDateString() : false;
+				const isPastDate = ! isToday && firstDayOfWeekDate.getTime() < currentDate.getTime();
+				const isWeekend  = currentDayInWeekPosition == 0 || currentDayInWeekPosition == 6;
+
+				// Only allow dates from today
+				let isSelectable = ! isPastDate;
+
+				switch ( calendarFilter )
+				{
+					case 'weekends':
+						isSelectable = isSelectable ? isWeekend : isSelectable;
+						break;
+
+					case 'weekdays':
+						isSelectable = isSelectable ? ! isWeekend : isSelectable;
+						break;
+				}
 
 				// Increase day date
 				firstDayOfWeekDate.setDate( firstDayOfWeekDate.getDate() + 1 );
 
 				 return {
-					date     : currentDayInWeekDate,
-					day      : currentDayInWeekDay,
-					today    : isToday,
-					selected : isSelected,
+					date       : currentDayInWeekDate,
+					day        : currentDayInWeekDay,
+					today      : isToday,
+					selected   : isSelected,
+					selectable : isSelectable,
 				};
 			} );
 		} );
+	}
+
+	const setFilter = filter => {
+		calendarFilter = filter;
 	}
 
 	/**
@@ -365,6 +384,10 @@ const DatePicker = ( function () {
 	 * @param  {Event}  event
 	 */
 	const onSelectDayHandler = ( datePicker, dayData, event ) => {
+		// Prevent select a none selectable day
+		if ( ! dayData.selectable )
+			return;
+
 		const input = querySelectorAll( { selector : `.${ classNames.input }`, sourceElement : datePicker } )[ 0 ];
 
 		const year  = dayData.date.getFullYear();
@@ -375,7 +398,7 @@ const DatePicker = ( function () {
 		input.value = `${ month }/${ day }/${ year }`;
 
 		event.preventDefault();
-		closePickers();
+		closePicker( datePicker );
 	}
 
 	/**
@@ -407,13 +430,20 @@ const DatePicker = ( function () {
 	}
 
 	/**
+	 * Function to close every the given datePicker
+	 */
+	const closePicker = datePicker => {
+		datePicker.classList.remove( classNames.active );
+	}
+
+	/**
 	 * Function to close every active datePickers in DOM
 	 */
 	const closePickers = () => {
 		const activePickers = querySelectorAll( { selector : `.${ classNames.wrapper }.${ classNames.active }` } );
 
 		activePickers.forEach( datePicker => {
-			datePicker.classList.remove( classNames.active );
+			closePicker( datePicker );
 		} );
 	}
 
@@ -490,7 +520,22 @@ const DatePicker = ( function () {
 		);
 	}
 
+	/**
+	 * Function to get certain information based on an specific locale
+	 * from a given Date
+	 *
+	 * @param  {Date}   options.date
+	 * @param  {Object} options.options
+	 * @param  {String} options.locale
+	 * @return {String}
+	 */
+	const getLocaleStringFromDate = ( { date, options, locale = "en-US" } ) => {
+		return date.toLocaleString( locale, options );
+	}
+
 	return {
-		init : init,
+		init      : init,
+		render    : render,
+		setFilter : setFilter,
 	};
-} )();
+};
