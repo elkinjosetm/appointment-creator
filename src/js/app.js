@@ -4,6 +4,7 @@ import TimePicker from './timepicker';
 
 const AppointmentCreator = ( function () {
 	const datePickerInstance = DatePicker();
+	const timePickerInstance = TimePicker();
 	let form,
 		summary,
 		saveButton,
@@ -29,11 +30,11 @@ const AppointmentCreator = ( function () {
 	const initializePickers = () => {
 		// Initialize DatePicker
 		if ( datePickerInstance )
-			datePickerInstance.init( { selector : '.datepicker' } );
+			datePickerInstance.init( { selector : '.datepicker', onDateChange : handleOnDateChange } );
 
 		// Initialize TimePickers
-		if ( TimePicker )
-			TimePicker.init();
+		if ( timePickerInstance )
+			timePickerInstance.init( { selector : '.timepicker' } );
 	}
 
 	/**
@@ -127,11 +128,26 @@ const AppointmentCreator = ( function () {
 		summary.innerText = '';
 	}
 
+	/**
+	 * Function to update the datePicker filter property
+	 *
+	 * @param  {Event}  event
+	 */
 	const filterDatePickers = event => {
 		const target = event.target;
 		const filter = target.value;
 
 		datePickerInstance.setFilter( filter );
+	}
+
+	/**
+	 * Function to update the timePicker date property
+	 *
+	 * @param  {Date} date
+	 */
+	const handleOnDateChange = date => {
+		if ( timePickerInstance )
+			timePickerInstance.setDate( date );
 	}
 
 	return {

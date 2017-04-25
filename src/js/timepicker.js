@@ -1,20 +1,22 @@
 import utils from './utils';
 
-const TimePicker = ( function () {
-	let classNames = {
+const TimePicker = function () {
+	const classNames = {
 		wrapper        : 'timepicker',
 		active         : 'timepicker__active',
 		input          : 'timepicker__input',
 		trigger        : 'timepicker__trigger',
 		hoursContainer : 'timepicker__hours__container',
 	};
+	let _date;
 
-	const init = config => {
-		// Use default classNames if there is no custom classNames
-		// given by user
-		classNames = config && config.classNames ? config.classNames : classNames;
+	const init = ( { selector, date } ) => {
+		if ( ! selector )
+			return;
 
-		const timePickers = utils.querySelectorAll( { selector : `.${ classNames.wrapper }` } );
+		_date = date;
+
+		const timePickers = utils.querySelectorAll( { selector : selector } );
 
 		// Attach onClick event to every timePicker input
 		timePickers.forEach( addPickerEventHandler );
@@ -150,15 +152,21 @@ const TimePicker = ( function () {
 	 * @return {Object[]}
 	 */
 	const buildHoursData = ( { selectedTime } ) => {
-		const data = [];
+		const data        = [];
+		const currentDate = new Date();
+		const isToday     = _date ? _date.toDateString() === currentDate.toDateString() : false;
 
 		Array.from( { length: 24 } ).forEach( ( value, hour ) => {
 			Array.from( { length: 4 } ).forEach( ( value, minute ) => {
 				// Hour value in 12 hours format
-				const hour12Format = hour == 0 ? 12 : hour > 12 ? hour - 12 : hour;
+				const hour12Format     = hour == 0 ? 12 : hour > 12 ? hour - 12 : hour;
+				const minutesToDisplay = minute * 15;
 
 				// Build time in 12 hours format
-				const time = `${ hour12Format }:${ minute == 0 ? '00' : minute * 15 } ${ hour >= 12 ? 'PM' : 'AM' }`;
+				const time = `${ hour12Format }:${ minutesToDisplay != 0 ? minutesToDisplay : '00' } ${ hour >= 12 ? 'PM' : 'AM' }`;
+
+				if ( isToday && ( hour < currentDate.getHours() || ( hour == currentDate.getHours() && minutesToDisplay <= currentDate.getMinutes() ) ) )
+					return;
 
 				data.push( {
 					time     : time,
@@ -207,6 +215,15 @@ const TimePicker = ( function () {
 	}
 
 	/**
+	 * Function to set the date
+	 *
+	 * @param  {Date} date
+	 */
+	const setDate = date => {
+		_date = date;
+	}
+
+	/**
 	 * Function to close every active timePickers in DOM
 	 */
 	const closePickers = () => {
@@ -237,8 +254,9 @@ const TimePicker = ( function () {
 	}
 
 	return {
-		init : init,
+		init    : init,
+		setDate : setDate,
 	};
-} )();
+};
 
 export default TimePicker;

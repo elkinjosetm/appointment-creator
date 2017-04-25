@@ -1,6 +1,6 @@
 import utils from './utils';
 
-const DatePicker = () => {
+const DatePicker = function () {
 	const classNames = {
 		wrapper              : 'datepicker',
 		active               : 'datepicker__active',
@@ -13,13 +13,15 @@ const DatePicker = () => {
 		calendarTable        : 'datepicker__calendar__table',
 		calendarDay          : 'datepicker__calendar__table__day',
 	};
-	let calendarFilter;
+	let _filter;
+	let _onDateChange;
 
-	const init = ( { selector, filter = 'any' } ) => {
+	const init = ( { selector, filter = 'any', onDateChange } ) => {
 		if ( ! selector )
 			return;
 
-		calendarFilter = filter;
+		_filter       = filter;
+		_onDateChange = onDateChange;
 
 		const datePickers = utils.querySelectorAll( { selector : selector } );
 
@@ -349,7 +351,7 @@ const DatePicker = () => {
 				// Only allow dates from today
 				let isSelectable = ! isPastDate;
 
-				switch ( calendarFilter )
+				switch ( _filter )
 				{
 					case 'weekends':
 						isSelectable = isSelectable ? isWeekend : isSelectable;
@@ -374,8 +376,13 @@ const DatePicker = () => {
 		} );
 	}
 
+	/**
+	 * Function to set filter
+	 *
+	 * @param  {String} filter
+	 */
 	const setFilter = filter => {
-		calendarFilter = filter;
+		_filter = filter;
 	}
 
 	/**
@@ -401,6 +408,9 @@ const DatePicker = () => {
 
 		event.preventDefault();
 		closePicker( datePicker );
+
+		if ( _onDateChange )
+			_onDateChange( dayData.date );
 	}
 
 	/**
@@ -478,7 +488,6 @@ const DatePicker = () => {
 
 	return {
 		init      : init,
-		render    : render,
 		setFilter : setFilter,
 	};
 };
