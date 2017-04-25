@@ -1,3 +1,4 @@
+import utils from './utils';
 import DatePicker from './datepicker';
 import TimePicker from './timepicker';
 
@@ -10,11 +11,11 @@ const AppointmentCreator = ( function () {
 		filters;
 
 	const init = () => {
-		form         = getElementById( { id : 'form' } );
-		summary      = getElementById( { id : 'summary' } );
-		saveButton   = getElementById( { id : 'save-button' } );
-		cancelButton = getElementById( { id : 'cancel-button' } );
-		filters      = querySelectorAll( { selector : '#form input[name="filter"]' } );
+		form         = utils.getElementById( { id : 'form' } );
+		summary      = utils.getElementById( { id : 'summary' } );
+		saveButton   = utils.getElementById( { id : 'save-button' } );
+		cancelButton = utils.getElementById( { id : 'cancel-button' } );
+		filters      = utils.querySelectorAll( { selector : '#form input[name="filter"]' } );
 
 		initializePickers();
 		addEventListeners();
@@ -131,28 +132,6 @@ const AppointmentCreator = ( function () {
 		const filter = target.value;
 
 		datePickerInstance.setFilter( filter );
-	}
-
-	/**
-	 * Generic function to get elements from DOM by a selector
-	 *
-	 * @param  {String}  selector
-	 * @param  {Node}    sourceElement
-	 * @return {Node[]}
-	 */
-	const querySelectorAll = ( { selector, sourceElement = document } ) => {
-		return sourceElement.querySelectorAll( selector );
-	}
-
-	/**
-	 * Function to get an element by Id
-	 *
-	 * @param  {String} options.id
-	 * @param  {Node} options.sourceElement
-	 * @return {Node}
-	 */
-	const getElementById = ( { id, sourceElement = document } ) => {
-		return sourceElement.getElementById( id );
 	}
 
 	return {

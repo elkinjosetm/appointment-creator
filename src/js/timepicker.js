@@ -1,3 +1,5 @@
+import utils from './utils';
+
 const TimePicker = ( function () {
 	let classNames = {
 		wrapper        : 'timepicker',
@@ -12,7 +14,7 @@ const TimePicker = ( function () {
 		// given by user
 		classNames = config && config.classNames ? config.classNames : classNames;
 
-		const timePickers = querySelectorAll( { selector : `.${ classNames.wrapper }` } );
+		const timePickers = utils.querySelectorAll( { selector : `.${ classNames.wrapper }` } );
 
 		// Attach onClick event to every timePicker input
 		timePickers.forEach( addPickerEventHandler );
@@ -27,8 +29,8 @@ const TimePicker = ( function () {
 	 * @param  {Node}   timePicker
 	 */
 	const addPickerEventHandler = timePicker => {
-		const input   = querySelectorAll( { selector : `.${ classNames.input }`, sourceElement : timePicker } )[ 0 ];
-		const trigger = querySelectorAll( { selector : `.${ classNames.trigger }`, sourceElement : timePicker } )[ 0 ];
+		const input   = utils.querySelectorAll( { selector : `.${ classNames.input }`, sourceElement : timePicker } )[ 0 ];
+		const trigger = utils.querySelectorAll( { selector : `.${ classNames.trigger }`, sourceElement : timePicker } )[ 0 ];
 
 		// Render initial timePicker
 		render( { timePicker : timePicker } );
@@ -40,7 +42,7 @@ const TimePicker = ( function () {
 			const target = event.target;
 			closePickers();
 
-			if ( ! hasClass( { element: timePicker, className : classNames.active } ) )
+			if ( ! utils.hasClass( { element: timePicker, className : classNames.active } ) )
 				timePicker.classList.add( classNames.active );
 
 			// Re-render time list
@@ -85,7 +87,7 @@ const TimePicker = ( function () {
 	 */
 	const getHoursContainer = timePicker => {
 		// byDefault create an empty container
-		let hoursContainer = createElement( { nodeName : 'div' } );
+		let hoursContainer = utils.createElement( { nodeName : 'div' } );
 		let isNew          = true;
 
 		// Set element class
@@ -93,7 +95,7 @@ const TimePicker = ( function () {
 
 		// Delete previous time data if there is any
 		timePicker.childNodes.forEach( node => {
-			if ( ! ( isElement( node ) && hasClass( { element : node, className : classNames.hoursContainer } ) ) )
+			if ( ! ( utils.isElement( node ) && utils.hasClass( { element : node, className : classNames.hoursContainer } ) ) )
 				return;
 
 			// Clear hoursContainer
@@ -120,11 +122,11 @@ const TimePicker = ( function () {
 	 */
 	const buildHourList = ( { selectedTime, onSelect } ) => {
 		const hoursData = buildHoursData( { selectedTime : selectedTime } );
-		const list      = createElement( { nodeName : 'ul' } );
+		const list      = utils.createElement( { nodeName : 'ul' } );
 
 		hoursData.forEach( data => {
-			const time   = createElement( { nodeName : 'li' } );
-			const button = createElement( { nodeName : 'a' } );
+			const time   = utils.createElement( { nodeName : 'li' } );
+			const button = utils.createElement( { nodeName : 'a' } );
 
 			button.innerText = data.time;
 
@@ -176,7 +178,7 @@ const TimePicker = ( function () {
 	 * @param  {Event}  event
 	 */
 	const onSelectHourHandler = ( timePicker, data, event ) => {
-		const input = querySelectorAll( { selector : `.${ classNames.input }`, sourceElement : timePicker } )[ 0 ];
+		const input = utils.querySelectorAll( { selector : `.${ classNames.input }`, sourceElement : timePicker } )[ 0 ];
 
 		// Update input value with selected hour
 		input.value = data.time;
@@ -191,7 +193,7 @@ const TimePicker = ( function () {
 	 * @param  {Node}   hoursContainer
 	 */
 	const scrollToSelected = hoursContainer => {
-		let selectedItem = querySelectorAll( { selector : '.selected', sourceElement : hoursContainer } );
+		let selectedItem = utils.querySelectorAll( { selector : '.selected', sourceElement : hoursContainer } );
 
 		// If there is no selected item, then prevent doing anything
 		if ( selectedItem.length == 0 )
@@ -208,7 +210,7 @@ const TimePicker = ( function () {
 	 * Function to close every active timePickers in DOM
 	 */
 	const closePickers = () => {
-		const activePickers = querySelectorAll( { selector : `.${ classNames.wrapper }.${ classNames.active }` } );
+		const activePickers = utils.querySelectorAll( { selector : `.${ classNames.wrapper }.${ classNames.active }` } );
 
 		activePickers.forEach( timePicker => {
 			timePicker.classList.remove( classNames.active );
@@ -224,60 +226,14 @@ const TimePicker = ( function () {
 	 */
 	const blurHandler = event => {
 		const target    = event.target;
-		const isInput   = hasClass( { element : target, className : classNames.input } );
-		const isTrigger = hasClass( { element : target, className : classNames.trigger } );
+		const isInput   = utils.hasClass( { element : target, className : classNames.input } );
+		const isTrigger = utils.hasClass( { element : target, className : classNames.trigger } );
 
 		// Prevent close pickers if user clicked one of the pickers
 		if ( isInput || isTrigger )
 			return;
 
 		closePickers();
-	}
-
-	/**
-	 * Function the create a simple DOM element
-	 *
-	 * @param  {String} nodeName
-	 * @param  {Node}   targetElement [Element in which the node will be created (Optional)]
-	 * @return {Node}
-	 */
-	const createElement = ( { nodeName, targetElement = document } ) => {
-		return targetElement.createElement( nodeName );
-	}
-
-	/**
-	 * Generic function to get elements from DOM by a selector
-	 *
-	 * @param  {String}  selector
-	 * @param  {Node}    sourceElement
-	 * @return {Node[]}
-	 */
-	const querySelectorAll = ( { selector, sourceElement = document } ) => {
-		return sourceElement.querySelectorAll( selector );
-	}
-
-	/**
-	 * Function to determine if an element has an specific class
-	 * @param  {Node}   options.element
-	 * @param  {String} options.className
-	 * @return {Bool}
-	 */
-	const hasClass = ( { element, className } ) => {
-		return element.classList.contains( className );
-	}
-
-	/**
-	 * Returns true if it is a DOM element
-	 *
-	 * @param  {Any}      node
-	 * @return {Boolean}
-	 */
-	const isElement = node => {
-		return (
-			typeof HTMLElement === "object" ?
-			node instanceof HTMLElement :
-			node && typeof node === "object" && node !== null && node.nodeType === 1 && typeof node.nodeName==="string"
-		);
 	}
 
 	return {

@@ -1,3 +1,5 @@
+import utils from './utils';
+
 const DatePicker = () => {
 	const classNames = {
 		wrapper              : 'datepicker',
@@ -19,7 +21,7 @@ const DatePicker = () => {
 
 		calendarFilter = filter;
 
-		const datePickers = querySelectorAll( { selector : selector } );
+		const datePickers = utils.querySelectorAll( { selector : selector } );
 
 		// Attach onClick event to every datePicker input
 		datePickers.forEach( addPickersEventHandler );
@@ -34,8 +36,8 @@ const DatePicker = () => {
 	 * @param  {Node} datePicker
 	 */
 	const addPickersEventHandler = datePicker => {
-		const input   = querySelectorAll( { selector : `.${ classNames.input }`, sourceElement : datePicker } )[ 0 ];
-		const trigger = querySelectorAll( { selector : `.${ classNames.trigger }`, sourceElement : datePicker } )[ 0 ];
+		const input   = utils.querySelectorAll( { selector : `.${ classNames.input }`, sourceElement : datePicker } )[ 0 ];
+		const trigger = utils.querySelectorAll( { selector : `.${ classNames.trigger }`, sourceElement : datePicker } )[ 0 ];
 
 		// Render initial calendar
 		render( { datePicker: datePicker } );
@@ -46,7 +48,7 @@ const DatePicker = () => {
 
 			closePicker( targetDatePicker );
 
-			if ( ! hasClass( { element: targetDatePicker, className : classNames.active } ) )
+			if ( ! utils.hasClass( { element: targetDatePicker, className : classNames.active } ) )
 				targetDatePicker.classList.add( classNames.active );
 
 			const selectedDate = input.value ? new Date( input.value ) : undefined;
@@ -100,7 +102,7 @@ const DatePicker = () => {
 	 */
 	const getCalendarContainer = datePicker => {
 		// byDefault create an empty container
-		let calendarContainer = createElement( { nodeName : 'div' } );
+		let calendarContainer = utils.createElement( { nodeName : 'div' } );
 		let isNew             = true;
 
 		// Set element class
@@ -108,7 +110,7 @@ const DatePicker = () => {
 
 		// Delete previous calendar data if there is any
 		datePicker.childNodes.forEach( node => {
-			if ( ! ( isElement( node ) && hasClass( { element : node, className : classNames.calendarContainer } ) ) )
+			if ( ! ( utils.isElement( node ) && utils.hasClass( { element : node, className : classNames.calendarContainer } ) ) )
 				return;
 
 			// Clear calendarContainer
@@ -136,11 +138,11 @@ const DatePicker = () => {
 	 * @return {Node}
 	 */
 	const buildCalendarHead = ( { datePicker, date, selectedDate } ) => {
-		const monthName = getLocaleStringFromDate( { date : date, options : { month : "long" } } );
-		const selector  = createElement( { nodeName : 'div' } );
-		const title     = createElement( { nodeName : 'span' } );
-		const back      = createElement( { nodeName : 'a' } );
-		const next      = createElement( { nodeName : 'a' } );
+		const monthName = utils.getLocaleStringFromDate( { date : date, options : { month : "long" } } );
+		const selector  = utils.createElement( { nodeName : 'div' } );
+		const title     = utils.createElement( { nodeName : 'span' } );
+		const back      = utils.createElement( { nodeName : 'a' } );
+		const next      = utils.createElement( { nodeName : 'a' } );
 
 		// Add proper classNames
 		selector.classList.add( classNames.calendarHeader );
@@ -174,7 +176,7 @@ const DatePicker = () => {
 	 * @return {Node}
 	 */
 	const buildCalendarTable = ( { date, selectedDate, onSelect } ) => {
-		const calendar = createElement( { nodeName : 'table' } );
+		const calendar = utils.createElement( { nodeName : 'table' } );
 
 		calendar.classList.add( classNames.calendarTable );
 
@@ -196,8 +198,8 @@ const DatePicker = () => {
 	 * @return {Node}
 	 */
 	const buildCalendarWeekDays = date => {
-		const thead = createElement( { nodeName : 'thead' } );
-		const tr    = createElement( { nodeName : 'tr' } );
+		const thead = utils.createElement( { nodeName : 'thead' } );
+		const tr    = utils.createElement( { nodeName : 'tr' } );
 
 		// Get weekDays names
 		const weekDays = getWeekDays( date );
@@ -205,7 +207,7 @@ const DatePicker = () => {
 		// Build calendarTable column names
 		// with the weekDay name
 		weekDays.forEach( day => {
-			const th = createElement( { nodeName : 'th' } );
+			const th = utils.createElement( { nodeName : 'th' } );
 			th.innerText = day;
 			tr.appendChild( th );
 		} );
@@ -224,7 +226,7 @@ const DatePicker = () => {
 	 * @return {Node}
 	 */
 	const buildCalendarContent = ( { date, selectedDate, onSelect } ) => {
-		const tbody     = createElement( { nodeName : 'tbody' } );
+		const tbody     = utils.createElement( { nodeName : 'tbody' } );
 		const monthData = monthMatrix( {
 			date         : date,
 			selectedDate : selectedDate,
@@ -246,7 +248,7 @@ const DatePicker = () => {
 	 * @return {Node}
 	 */
 	const buildWeekRow = ( { data, onSelect } ) => {
-		const row = createElement( { nodeName : 'tr' } );
+		const row = utils.createElement( { nodeName : 'tr' } );
 
 		data.forEach( dayData => row.appendChild( buildDay( {
 			data     : dayData,
@@ -264,8 +266,8 @@ const DatePicker = () => {
 	 * @return {Node}
 	 */
 	const buildDay = ( { data, onSelect } ) => {
-		const cell   = createElement( { nodeName : 'td' } );
-		const button = createElement( { nodeName : 'a' } );
+		const cell   = utils.createElement( { nodeName : 'td' } );
+		const button = utils.createElement( { nodeName : 'a' } );
 
 		if ( data.today )
 		{
@@ -303,7 +305,7 @@ const DatePicker = () => {
 			const newDate = new Date( date.getDate() - date.getDay() );
 			newDate.setDate( index );
 
-			return getLocaleStringFromDate( { date : newDate, options : { weekday: "narrow" } } );
+			return utils.getLocaleStringFromDate( { date : newDate, options : { weekday: "narrow" } } );
 		} );
 	}
 
@@ -388,7 +390,7 @@ const DatePicker = () => {
 		if ( ! dayData.selectable )
 			return;
 
-		const input = querySelectorAll( { selector : `.${ classNames.input }`, sourceElement : datePicker } )[ 0 ];
+		const input = utils.querySelectorAll( { selector : `.${ classNames.input }`, sourceElement : datePicker } )[ 0 ];
 
 		const year  = dayData.date.getFullYear();
 		const month = dayData.date.getMonth() + 1;
@@ -440,7 +442,7 @@ const DatePicker = () => {
 	 * Function to close every active datePickers in DOM
 	 */
 	const closePickers = () => {
-		const activePickers = querySelectorAll( { selector : `.${ classNames.wrapper }.${ classNames.active }` } );
+		const activePickers = utils.querySelectorAll( { selector : `.${ classNames.wrapper }.${ classNames.active }` } );
 
 		activePickers.forEach( datePicker => {
 			closePicker( datePicker );
@@ -456,81 +458,22 @@ const DatePicker = () => {
 	 */
 	const blurHandler = event => {
 		const target    = event.target;
-		const isInput   = hasClass( { element : target, className : classNames.input } );
-		const isTrigger = hasClass( { element : target, className : classNames.trigger } );
-		let isCalendar  = hasClass( { element : target, className : classNames.calendarContainer } );
+		const isInput   = utils.hasClass( { element : target, className : classNames.input } );
+		const isTrigger = utils.hasClass( { element : target, className : classNames.trigger } );
+		let isCalendar  = utils.hasClass( { element : target, className : classNames.calendarContainer } );
 
 		// Also check if the event coming from an element inside the calendar
-		isCalendar = ! isCalendar ? hasClass( { element : target, className : classNames.calendarHeader } ) : isCalendar;
-		isCalendar = ! isCalendar ? hasClass( { element : target, className : classNames.calendarHeaderTitle } ) : isCalendar;
-		isCalendar = ! isCalendar ? hasClass( { element : target, className : classNames.calendarHeaderButton } ) : isCalendar;
-		isCalendar = ! isCalendar ? hasClass( { element : target, className : classNames.calendarTable } ) : isCalendar;
-		isCalendar = ! isCalendar ? hasClass( { element : target, className : classNames.calendarDay } ) : isCalendar;
+		isCalendar = ! isCalendar ? utils.hasClass( { element : target, className : classNames.calendarHeader } ) : isCalendar;
+		isCalendar = ! isCalendar ? utils.hasClass( { element : target, className : classNames.calendarHeaderTitle } ) : isCalendar;
+		isCalendar = ! isCalendar ? utils.hasClass( { element : target, className : classNames.calendarHeaderButton } ) : isCalendar;
+		isCalendar = ! isCalendar ? utils.hasClass( { element : target, className : classNames.calendarTable } ) : isCalendar;
+		isCalendar = ! isCalendar ? utils.hasClass( { element : target, className : classNames.calendarDay } ) : isCalendar;
 
 		// Prevent close pickers if user clicked one of the pickers
 		if ( isInput || isTrigger || isCalendar )
 			return;
 
 		closePickers();
-	}
-
-	/**
-	 * Function the create a simple DOM element
-	 *
-	 * @param  {String} nodeName
-	 * @param  {Node}   targetElement [Element in which the node will be created (Optional)]
-	 * @return {Node}
-	 */
-	const createElement = ( { nodeName, targetElement = document } ) => {
-		return targetElement.createElement( nodeName );
-	}
-
-	/**
-	 * Generic function to get elements from DOM by a selector
-	 *
-	 * @param  {String}  selector
-	 * @param  {Node}    sourceElement
-	 * @return {Node[]}
-	 */
-	const querySelectorAll = ( { selector, sourceElement = document } ) => {
-		return sourceElement.querySelectorAll( selector );
-	}
-
-	/**
-	 * Function to determine if an element has an specific class
-	 * @param  {Node}   options.element
-	 * @param  {String} options.className
-	 * @return {Bool}
-	 */
-	const hasClass = ( { element, className } ) => {
-		return element.classList.contains( className );
-	}
-
-	/**
-	 * Returns true if it is a DOM element
-	 *
-	 * @param  {Any}      node
-	 * @return {Boolean}
-	 */
-	const isElement = node => {
-		return (
-			typeof HTMLElement === "object" ?
-			node instanceof HTMLElement :
-			node && typeof node === "object" && node !== null && node.nodeType === 1 && typeof node.nodeName==="string"
-		);
-	}
-
-	/**
-	 * Function to get certain information based on an specific locale
-	 * from a given Date
-	 *
-	 * @param  {Date}   options.date
-	 * @param  {Object} options.options
-	 * @param  {String} options.locale
-	 * @return {String}
-	 */
-	const getLocaleStringFromDate = ( { date, options, locale = "en-US" } ) => {
-		return date.toLocaleString( locale, options );
 	}
 
 	return {
