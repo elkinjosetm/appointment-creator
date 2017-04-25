@@ -539,3 +539,5 @@ const DatePicker = () => {
 		setFilter : setFilter,
 	};
 };
+
+export default DatePicker;

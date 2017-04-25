@@ -1,3 +1,6 @@
+import DatePicker from './datepicker';
+import TimePicker from './timepicker';
+
 const AppointmentCreator = ( function () {
 	const datePickerInstance = DatePicker();
 	let form,

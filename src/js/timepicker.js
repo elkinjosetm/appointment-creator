@@ -284,3 +284,5 @@ const TimePicker = ( function () {
 		init : init,
 	};
 } )();
+
+export default TimePicker;
