@@ -1,0 +1,9 @@
+[class^=col-]
+{
+	float   : left;
+	padding : 0 15px;
+}
+
+.col-4 { width: 33.33333333%; }
+.col-8 { width: 66.66666667%; }
+.col-12 { width: 100%; }

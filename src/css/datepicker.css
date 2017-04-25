@@ -1,41 +1,3 @@
-.datepicker
-{
-	display  : inline-block;
-	position : relative;
-}
-
-.datepicker__trigger
-{
-	background-color : transparent;
-	border           : none;
-	float            : right;
-	font-size        : 18px;
-	padding          : 0;
-	cursor           : pointer;
-}
-
-.datepicker__calendar__container
-{
-	opacity          : 0;
-	z-index          : 1;
-	visibility       : hidden;
-	position         : absolute;
-	width            : 300px;
-	border           : 1px solid #ccc;
-	border-radius    : 4px;
-	box-shadow       : 1px 1px 1px rgba( 0, 0, 0, .1 );
-	background-color : #fff;
-	transition       : all .3s;
-	user-select      : none;
-}
-
-.datepicker.datepicker__active .datepicker__calendar__container
-{
-	opacity    : 1;
-	visibility : visible;
-	margin-top : 10px;
-}
-
 .datepicker__calendar__header
 {
 	text-align : center;
@@ -76,31 +38,12 @@
 
 .datepicker__calendar__table td a
 {
-	display : block;
-	cursor  : pointer;
-}
-
-.datepicker__calendar__header a:hover,
-.datepicker__calendar__table td a:hover
-{
-	background-color : rgba( 0,0,0,.05 );
+	display       : block;
+	cursor        : pointer;
+	border-radius : 4px;
 }
 
 .datepicker__calendar__table td.today a
 {
 	background-color : rgba( 0,0,0,.08 );
-}
-
-.datepicker__calendar__table td.selected a
-{
-	color            : #fff;
-	background-color : #337ab7;
-}
-
-.datepicker__calendar__table td.disabled a,
-.datepicker__calendar__table td.disabled a:hover
-{
-	color            : #d6d6d6;
-	background-color : transparent;
-	cursor           : not-allowed;
 }

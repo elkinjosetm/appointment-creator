@@ -1,0 +1,67 @@
+.datepicker,
+.timepicker
+{
+	position : relative;
+}
+
+.datepicker__trigger,
+.timepicker__trigger
+{
+	background-color : transparent;
+	border           : none;
+	float            : left;
+	padding          : 0;
+	cursor           : pointer;
+	font-size        : 20px;
+	margin-left      : 8px;
+	margin-top       : 5px;
+}
+
+.datepicker__calendar__container,
+.timepicker__hours__container
+{
+	opacity          : 0;
+	z-index          : 1;
+	visibility       : hidden;
+	position         : absolute;
+	top              : 30px;
+	width            : 300px;
+	border           : 1px solid #ccc;
+	border-radius    : 4px;
+	box-shadow       : 1px 1px 1px rgba( 0, 0, 0, .1 );
+	background-color : #fff;
+	transition       : all .3s;
+	user-select      : none;
+}
+
+.datepicker.datepicker__active .datepicker__calendar__container,
+.timepicker.timepicker__active .timepicker__hours__container
+{
+	opacity    : 1;
+	visibility : visible;
+	margin-top : 10px;
+}
+
+.datepicker__calendar__header a:hover,
+.datepicker__calendar__table td a:hover,
+.timepicker__hours__container ul li a:hover
+{
+	background-color : rgba( 0,0,0,.05 );
+}
+
+.datepicker__calendar__table td.selected a,
+.timepicker__hours__container ul li.selected a
+{
+	color            : #fff;
+	background-color : #337ab7;
+}
+
+.datepicker__calendar__table td.disabled a,
+.datepicker__calendar__table td.disabled a:hover,
+.timepicker__hours__container ul li.disabled a,
+.timepicker__hours__container ul li.disabled a:hover
+{
+	color            : #d6d6d6;
+	background-color : transparent;
+	cursor           : not-allowed;
+}

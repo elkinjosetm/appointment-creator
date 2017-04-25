@@ -1,41 +1,8 @@
-.timepicker
-{
-	display  : inline-block;
-	position : relative;
-}
-
-.timepicker__trigger
-{
-	background-color : transparent;
-	border           : none;
-	float            : right;
-	font-size        : 18px;
-	padding          : 0;
-	cursor           : pointer;
-}
-
 .timepicker__hours__container
 {
-	overflow-y       : scroll;
-	opacity          : 0;
-	z-index          : 1;
-	visibility       : hidden;
-	position         : absolute;
-	width            : 200px;
-	max-height       : 266px;
-	border           : 1px solid #ccc;
-	border-radius    : 4px;
-	box-shadow       : 1px 1px 1px rgba( 0, 0, 0, .1 );
-	background-color : #fff;
-	transition       : all .3s;
-	user-select      : none;
-}
-
-.timepicker.timepicker__active .timepicker__hours__container
-{
-	opacity    : 1;
-	visibility : visible;
-	margin-top : 10px;
+	overflow-y : scroll;
+	width      : 200px;
+	max-height : 266px;
 }
 
 .timepicker__hours__container ul
@@ -50,15 +17,4 @@
 	display : block;
 	cursor  : pointer;
 	padding : 10px;
-}
-
-.timepicker__hours__container ul li a:hover
-{
-	background-color : rgba( 0,0,0,.05 );
-}
-
-.timepicker__hours__container ul li.selected a
-{
-	color            : #fff;
-	background-color : #337ab7;
 }
