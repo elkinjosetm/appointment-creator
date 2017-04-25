@@ -9,14 +9,16 @@ const TimePicker = function () {
 		hoursContainer : 'timepicker__hours__container',
 	};
 	let _date;
+	let _selector;
 
 	const init = ( { selector, date } ) => {
 		if ( ! selector )
 			return;
 
-		_date = date;
+		_date     = date;
+		_selector = selector;
 
-		const timePickers = utils.querySelectorAll( { selector : selector } );
+		const timePickers = utils.querySelectorAll( { selector : _selector } );
 
 		// Attach onClick event to every timePicker input
 		timePickers.forEach( addPickerEventHandler );
@@ -36,9 +38,6 @@ const TimePicker = function () {
 
 		// Render initial timePicker
 		render( { timePicker : timePicker } );
-
-		// byDefault, the selected hour is 12:00 PM
-		input.value = '12:00 PM';
 
 		const onClickEvent = event => {
 			const target = event.target;
@@ -67,7 +66,9 @@ const TimePicker = function () {
 	 * @param  {Node}   options.timePicker
 	 * @param  {String} options.selectedTime
 	 */
-	const render = ( { timePicker, selectedTime = '' } ) => {
+	const render = ( { timePicker, selectedTime } ) => {
+		const currentDate    = new Date();
+		const isToday        = _date ? _date.toDateString() === currentDate.toDateString() : false;
 		const hoursContainer = getHoursContainer( timePicker );
 
 		// Render hour list
@@ -77,6 +78,14 @@ const TimePicker = function () {
 		} ) );
 
 		scrollToSelected( hoursContainer );
+
+		// Only update the input value if the selected date is not today
+		// To ensure default value
+		if ( ! isToday )
+		{
+			const input = utils.querySelectorAll( { selector : `.${ classNames.input }`, sourceElement : timePicker } )[ 0 ];
+			input.value = selectedTime || '12:00 PM';
+		}
 	}
 
 	/**
@@ -123,7 +132,7 @@ const TimePicker = function () {
 	 * @return {Node}
 	 */
 	const buildHourList = ( { selectedTime, onSelect } ) => {
-		const hoursData = buildHoursData( { selectedTime : selectedTime } );
+		const hoursData = buildHoursData( selectedTime );
 		const list      = utils.createElement( { nodeName : 'ul' } );
 
 		hoursData.forEach( data => {
@@ -148,10 +157,10 @@ const TimePicker = function () {
 	/**
 	 * Function to build the hour data
 	 *
-	 * @param  {String}    options.selectedTime
+	 * @param  {String}    selectedTime
 	 * @return {Object[]}
 	 */
-	const buildHoursData = ( { selectedTime } ) => {
+	const buildHoursData = selectedTime => {
 		const data        = [];
 		const currentDate = new Date();
 		const isToday     = _date ? _date.toDateString() === currentDate.toDateString() : false;
@@ -221,6 +230,20 @@ const TimePicker = function () {
 	 */
 	const setDate = date => {
 		_date = date;
+
+		const currentDate = new Date();
+		const isToday     = date.toDateString() === currentDate.toDateString()
+		const timePickers = utils.querySelectorAll( { selector : _selector } );
+		const hoursData   = buildHoursData();
+
+		timePickers.forEach( timePicker => {
+			const input = utils.querySelectorAll( { selector : `.${ classNames.input }`, sourceElement : timePicker } )[ 0 ];
+
+			// If its today, and the hour list, has pass 48 items,
+			// which means 12:00 PM, then select the first available hour
+			// otherwise, select 12:00 PM byDefault
+			input.value = isToday && hoursData.length < 48 ? hoursData[ 0 ].time : '12:00 PM';
+		} );
 	}
 
 	/**
