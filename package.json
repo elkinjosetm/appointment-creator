@@ -23,6 +23,7 @@
     "gulp-clean-css": "^3.0.4",
     "gulp-concat-css": "^2.3.0",
     "gulp-connect": "^5.0.0",
+    "gulp-notify": "^3.0.0",
     "gulp-sourcemaps": "^2.6.0",
     "gulp-task-loader": "^1.4.4",
     "gulp-uglify": "^2.1.2",

@@ -6,6 +6,7 @@ module.exports = function () {
 	return plugins.browserify( { entries: `./${ opts.source }/js/app.js`, debug: true } )
 		.transform( "babelify", { presets: [ "es2015" ] } )
 		.bundle()
+		.on( 'error', opts.handleErrors )
 		.pipe( plugins.source( 'app.js' ) )
 		.pipe( plugins.buffer() )
 		.pipe( plugins.sourcemaps.init( { loadMaps : true } ) )
