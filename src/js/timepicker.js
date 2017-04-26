@@ -239,9 +239,9 @@ const TimePicker = function () {
 		timePickers.forEach( timePicker => {
 			const input = utils.querySelectorAll( { selector : `.${ classNames.input }`, sourceElement : timePicker } )[ 0 ];
 
-			// If its today, and the hour list, has pass 48 items,
-			// which means 12:00 PM, then select the first available hour
-			// otherwise, select 12:00 PM byDefault
+			// If its today, and the hour list has less than 48 items,
+			// means that 12:00 PM has passed, so select the first
+			// available hour otherwise, select 12:00 PM by default.
 			input.value = isToday && hoursData.length < 48 ? hoursData[ 0 ].time : '12:00 PM';
 		} );
 	}

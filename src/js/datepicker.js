@@ -154,8 +154,8 @@ const DatePicker = function () {
 
 		// Set Proper values
 		title.innerText = `${ monthName } ${ date.getFullYear() }`;
-		back.innerHTML  = '&#10094;';
-		next.innerHTML  = '&#10095;';
+		back.innerHTML  = '&#10094;'; // Left arrow
+		next.innerHTML  = '&#10095;'; // Right arrow
 
 		// Add buttons event handlers
 		back.addEventListener( 'click', onChangeMonthHandler.bind( null, datePicker, date, selectedDate, false ) );
