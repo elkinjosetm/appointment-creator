@@ -13,3 +13,5 @@ gulp
 $ npm install
 $ gulp
 ```
+
+Go to ```http://localhost:3000/```
