@@ -65,3 +65,13 @@
 	background-color : transparent;
 	cursor           : not-allowed;
 }
+
+@media ( max-width: 380px ) {
+	.datepicker__calendar__container,
+	.timepicker__hours__container
+	{ width: 260px; }
+
+	.datepicker__trigger,
+	.timepicker__trigger
+	{ float: right; }
+}

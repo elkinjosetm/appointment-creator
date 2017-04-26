@@ -16,15 +16,6 @@ body
 	background-color : #ddf4ff;
 }
 
-.container
-{
-	width         : 50%;
-	background    : white;
-	padding       : 30px;
-	border-radius : 4px;
-	box-shadow    : 1px 1px 1px rgba( 0, 0, 0, 0.16 );
-}
-
 h2 { margin-top: 0; }
 
 .text-center { text-align: center; }
@@ -107,4 +98,13 @@ h2 { margin-top: 0; }
 .radio
 {
 	margin: 10px 0;
+}
+
+@media ( min-width: 210px ) and ( max-width: 609px ) { body { display: initial; } }
+@media ( max-width: 380px )
+{
+	.form-group,
+	.form-control { float: none; }
+
+	.form-group { width: 100%; }
 }
